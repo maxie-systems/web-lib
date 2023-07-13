@@ -31,3 +31,17 @@ Or you can use a new container every time you want to run tests:
 docker run -it --rm -v .:/usr/src/app web-lib-dev composer test
 ```
 
+Run only unit tests:
+```
+composer utest
+```
+
+Check your code against the PSR-12 coding standard:
+```
+composer test-psr12 src/FileName.php
+```
+
+Fix your code:
+```
+composer fix-psr12 src/FileName.php
+```

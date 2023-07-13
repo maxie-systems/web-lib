@@ -24,6 +24,9 @@
             "./vendor/bin/phpunit tests",
             "./vendor/bin/phpcs --standard=PSR12 src",
             "./vendor/bin/phpcs --standard=PSR12 tests"
-        ]
+        ],
+        "utest": "./vendor/bin/phpunit tests",
+        "test-psr12": "./vendor/bin/phpcs --standard=PSR12",
+        "fix-psr12": "./vendor/bin/phpcbf --standard=PSR12"
     }
 }
