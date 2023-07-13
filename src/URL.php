@@ -4,6 +4,38 @@ namespace MaxieSystems;
 
 class URL
 {
+    final public static function build(object $url): string
+    {
+        $s = '';
+        if ('' !== $url->scheme) {
+            $s .= "$url->scheme:";
+        }
+        $h = "$url->host";
+        if ('' !== $h) {
+            $s .= '//';
+            if ('' !== $url->user) {
+                $s .= $url->user;
+                if ($url->pass) {
+                    $s .= ":$url->pass";
+                }
+                $s .= '@';
+            }
+            $s .= $h;
+            if ($url->port) {
+                $s .= ":$url->port";
+            }
+        }
+        $s .= $url->path;
+        $q = "$url->query";
+        if ('' !== $q) {
+            $s .= "?$q";
+        }
+        if ('' !== $url->fragment) {
+            $s .= "#$url->fragment";
+        }
+        return $s;
+    }
+
     final public static function encode(string $string): string
     {
         static $s = [
