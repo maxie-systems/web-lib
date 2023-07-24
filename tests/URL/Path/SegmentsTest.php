@@ -10,7 +10,7 @@ final class SegmentsTest extends TestCase
 {
     public function testFilterSegment(): void
     {
-        $filter = function (string $segment, int $i): ?string {
+        $filter = function (string $segment, int $i, int $last_i): ?string {
             if ('' === $segment) {
                 return null;
             }
@@ -18,6 +18,23 @@ final class SegmentsTest extends TestCase
         };
         $segments = new Segments('/My/CaseSensitive/PathName/index.php', $filter);
         $this->assertSame('pathname', $segments[2]);
+    }
+
+    public function testFilterSegmentRaw(): void
+    {
+        $tests = [
+            'test/page' => [],
+            'test//page' => [],
+        ];
+        foreach ($tests as $path => $values) {
+            $tests[$path] = [$path, "/$path", "$path/"];
+        }
+        foreach ($tests as $expected => $values) {
+            foreach ($values as $path) {
+                $segments = new Segments($path, [Segments::class, 'filterSegmentRaw']);
+                $this->assertSame($expected, (string)$segments);
+            }
+        }
     }
 
     public function testOffsetGet(): void

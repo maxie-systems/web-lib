@@ -19,7 +19,12 @@ class Segments implements \Countable, \ArrayAccess
         }
     }
 
-    protected function filterSegment(string $segment, int $i): ?string
+    final public static function filterSegmentRaw(string $segment, int $i, int $last_i): ?string
+    {
+        return '' === $segment && (0 === $i || $i === $last_i) ? null : $segment;
+    }
+
+    protected function filterSegment(string $segment, int $i, int $last_i): ?string
     {
         return '' === $segment ? null : $segment;
     }
@@ -31,8 +36,9 @@ class Segments implements \Countable, \ArrayAccess
         }
         $s = [];
         $i = 0;
+        $last_i = count($segments) - 1;
         foreach ($segments as $v) {
-            $v = $filter_segment($v, $i, ...$args);
+            $v = $filter_segment($v, $i, $last_i, ...$args);
             if (null !== $v) {
                 $s[] = $v;
             }
