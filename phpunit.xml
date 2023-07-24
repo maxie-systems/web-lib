@@ -1,3 +1,13 @@
-<phpunit executionOrder="random">
-
+<phpunit executionOrder="random"
+ displayDetailsOnTestsThatTriggerDeprecations="true"
+ failOnDeprecation="true"
+ displayDetailsOnTestsThatTriggerWarnings="true"
+ failOnWarning="true"
+ displayDetailsOnTestsThatTriggerNotices="true"
+ failOnNotice="true">
+  <testsuites>
+    <testsuite name="all">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>

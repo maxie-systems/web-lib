@@ -23,17 +23,17 @@ composer install
 
 From now on you can run all tests using this command inside the Container:
 ```
-composer test
+composer test-all
 ```
 
 Or you can use a new container every time you want to run tests:
 ```
-docker run -it --rm -v .:/usr/src/app web-lib-dev composer test
+docker run -it --rm -v .:/usr/src/app web-lib-dev composer test-all
 ```
 
-Run only unit tests:
+Run only unit tests (filename\dirname is optional):
 ```
-composer utest
+composer utest <tests/FileNameTest.php>
 ```
 
 Check your code against the PSR-12 coding standard:
