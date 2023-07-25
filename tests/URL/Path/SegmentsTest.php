@@ -65,4 +65,25 @@ final class SegmentsTest extends TestCase
         $this->expectException(\Error::class);
         unset($segments[0]);
     }
+
+    public function testStartsWith(): void
+    {
+        $tests = [
+            'test/page/my-xxx.html/abc' => [false, null],
+            'test/page/not-my' => [false, null],
+            'test/page' => [true, 'my-xxx.html'],
+            '/test/page' => [true, 'my-xxx.html'],
+            '/test/page/' => [true, 'my-xxx.html'],
+            'test//page' => [true, 'my-xxx.html'],
+            '/test//page' => [true, 'my-xxx.html'],
+            '/test//page/' => [true, 'my-xxx.html'],
+            'test/page/my-xxx.html' => [true, ''],
+            '/test/page/my-xxx.html' => [true, ''],
+        ];
+        $s = new Segments('test/page/my-xxx.html');
+        foreach ($tests as $path => $expected) {
+            $this->assertSame($expected[0], $s->startsWith($path, $sub));
+            $this->assertSame($expected[1], $sub);
+        }
+    }
 }

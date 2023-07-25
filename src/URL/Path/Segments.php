@@ -8,15 +8,15 @@ class Segments implements \Countable, \ArrayAccess
 {
     final public function __construct(string|iterable $path, callable $filter_segment = null, ...$args)
     {
-        if (is_string($path)) {
-            if ('' === $path || '/' === $path) {
-                $this->segments = [];
-            } else {
-                $this->segments = $this->filterSegments(explode('/', $path), $filter_segment, ...$args);
-            }
+        if (null === $filter_segment) {
+            $this->filter_segment = null;
+        } elseif ($filter_segment instanceof \Closure) {
+            $this->filter_segment = $filter_segment;
         } else {
-            $this->segments = $this->filterSegments($path, $filter_segment, ...$args);
+            $this->filter_segment = \Closure::fromCallable($filter_segment);
         }
+        $this->filter_segment_args = $args;
+        $this->segments = $this->pathToArray($path);
     }
 
     final public static function filterSegmentRaw(string $segment, int $i, int $last_i): ?string
@@ -45,6 +45,42 @@ class Segments implements \Countable, \ArrayAccess
             ++$i;
         }
         return $s;
+    }
+
+    final protected function pathToArray(string|iterable $path): array
+    {
+        if (is_string($path)) {
+            if ('' === $path || '/' === $path) {
+                return [];
+            } else {
+                $path = explode('/', $path);
+            }
+        }
+        return $this->filterSegments($path, $this->filter_segment, ...$this->filter_segment_args);
+    }
+
+    final public function startsWith(string|iterable $path, string &$sub = null): bool
+    {
+        $sub = null;
+        $c0 = count($this);
+        if (0 === $c0) {
+            return false;
+        }
+        $a = $this->pathToArray($path);
+        $c1 = count($a);
+        if (0 < $c1 && $c1 <= $c0) {
+            $tmp = $this->segments;
+            foreach ($a as $i => $v) {
+                if ($this->segments[$i] === $v) {
+                    unset($tmp[$i]);
+                } else {
+                    return false;
+                }
+            }
+            $sub = $tmp ? implode('/', $tmp) : '';
+            return true;
+        }
+        return false;
     }
 
     final public function count(): int
@@ -93,4 +129,6 @@ class Segments implements \Countable, \ArrayAccess
     }
 
     protected readonly array $segments;
+    private readonly ?\Closure $filter_segment;
+    private readonly array $filter_segment_args;
 }
