@@ -95,6 +95,36 @@ class URL implements URLInterface
         return $url . $c . $params;
     }
 
+    final public static function deleteQueryParameters(string $q, array $params, int &$count = null): string
+    {
+        $count = 0;
+        if (!$params) {
+            return $q;
+        }
+        $params = array_fill_keys($params, 1);
+        $s = '';
+        foreach (explode('&', $q) as $sp) {
+            $p = explode('=', $sp, 2);
+            $n = urldecode($p[0]);// \PHP_QUERY_RFC1738
+            $pos0 = strpos($n, '[');
+            if (false !== $pos0) {
+                $pos1 = strpos($n, ']', $pos0 + 1);
+                if (false !== $pos1) {
+                    $n = substr($n, 0, $pos0);
+                }
+            }
+            if (isset($params[$n])) {
+                ++$count;
+            } else {
+                if ('' !== $s) {
+                    $s .= '&';
+                }
+                $s .= $sp;
+            }
+        }
+        return $count ? $s : $q;
+    }
+
     final public static function isComponentName(string $name): bool
     {
         return isset(self::$components[$name]);

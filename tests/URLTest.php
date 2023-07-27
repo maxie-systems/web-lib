@@ -164,15 +164,31 @@ final class URLTest extends TestCase
     {
         foreach (
             [
-            ['https://example.com/?a=1&bb=22', 'https://example.com/', 'a=1&bb=22'],
-            ['https://example.com/?a=1&bb=22', 'https://example.com/', ['a' => 1, 'bb' => 22]],
-            ['https://example.com/?a=1&bb=22', 'https://example.com/?', 'a=1&bb=22'],
-            ['https://example.com/?a=1&bb=22', 'https://example.com/?', ['a' => 1, 'bb' => 22]],
-            ['https://test.com/?xyz=0&a=1&bb=22', 'https://test.com/?xyz=0', 'a=1&bb=22'],
-            ['https://test.com/?xyz=&a=1&bb=22', 'https://test.com/?xyz=', ['a' => 1, 'bb' => 22]],
+                ['https://example.com/?a=1&bb=22', 'https://example.com/', 'a=1&bb=22'],
+                ['https://example.com/?a=1&bb=22', 'https://example.com/', ['a' => 1, 'bb' => 22]],
+                ['https://example.com/?a=1&bb=22', 'https://example.com/?', 'a=1&bb=22'],
+                ['https://example.com/?a=1&bb=22', 'https://example.com/?', ['a' => 1, 'bb' => 22]],
+                ['https://test.com/?xyz=0&a=1&bb=22', 'https://test.com/?xyz=0', 'a=1&bb=22'],
+                ['https://test.com/?xyz=&a=1&bb=22', 'https://test.com/?xyz=', ['a' => 1, 'bb' => 22]],
             ] as list($expected, $url, $params)
         ) {
             $this->assertSame($expected, URL::addQueryParameters($url, $params));
+        }
+    }
+
+    public function testDeleteQueryParameters(): void
+    {
+        $q = 'size=actual&nocompress&opt[]=a&opt[]=b&opt[]=c&';
+        foreach (
+            [
+                [['nocomp', 'c'], 0, $q],
+                [['size'], 1, 'nocompress&opt[]=a&opt[]=b&opt[]=c&'],
+                [['nocompress', 'opt'], 4, 'size=actual&'],
+                [['size', 'nocompress', 'opt'], 5, ''],
+            ] as list($params, $count, $query)
+        ) {
+            $this->assertSame($query, URL::deleteQueryParameters($q, $params, $c));
+            $this->assertSame($count, $c);
         }
     }
 
