@@ -4,36 +4,6 @@ namespace MaxieSystems\URL;
 
 class Query implements \Iterator, \Countable, \ArrayAccess, \jsonSerializable
 {
-    final public static function deleteParams(string &$q, string ...$params): int
-    {
-        $params = array_fill_keys($params, 1);
-        $s = '';
-        $i = 0;
-        foreach (explode('&', $q) as $sp) {
-            $p = explode('=', $sp, 2);
-            $n = urldecode($p[0]);// \PHP_QUERY_RFC1738
-            $pos0 = strpos($n, '[');
-            if (false !== $pos0) {
-                $pos1 = strpos($n, ']', $pos0 + 1);
-                if (false !== $pos1) {
-                    $n = substr($n, 0, $pos0);
-                }
-            }
-            if (isset($params[$n])) {
-                ++$i;
-            } else {
-                if ('' !== $s) {
-                    $s .= '&';
-                }
-                $s .= $sp;
-            }
-        }
-        if ($i) {
-            $q = $s;
-        }
-        return $i;
-    }
-
     final public function __construct(string|iterable $q)
     {
         if (is_string($q)) {
