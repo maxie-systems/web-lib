@@ -26,17 +26,17 @@ class URLReadOnly implements URLInterface
             $filter = function (
                 string $name,
                 mixed $value,
-                \Closure $get_src_val,
+                array|\ArrayAccess $src_url,
                 ...$args
             ) use (&$filter_component): mixed {
-                $value = $filter_component($name, $value, $get_src_val, ...$args);
-                return $this->filterComponent($name, $value, $get_src_val);
+                $value = $filter_component($name, $value, $src_url, ...$args);
+                return $this->filterComponent($name, $value, $src_url);
             };
         }
         $this->url = new URL($source, $filter, ...$args);
     }
 
-    protected function filterComponent(string $name, mixed $value, \Closure $get_src_val): mixed
+    protected function filterComponent(string $name, mixed $value, array|\ArrayAccess $src_url): mixed
     {
         return $value;
     }
@@ -69,6 +69,26 @@ class URLReadOnly implements URLInterface
     public function __get($name): mixed
     {
         return $this->url->$name;
+    }
+
+    final public function offsetExists(mixed $offset): bool
+    {
+        return $this->__isset($offset);
+    }
+
+    final public function offsetGet(mixed $offset): mixed
+    {
+        return $this->__get($offset);
+    }
+
+    final public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->__set($offset, $value);
+    }
+
+    final public function offsetUnset(mixed $offset): void
+    {
+        $this->__unset($offset);
     }
 
     public function current(): mixed

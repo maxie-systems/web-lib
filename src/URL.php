@@ -95,6 +95,12 @@ class URL implements URLInterface
         return $url . $c . $params;
     }
 
+    /**
+     * @param string $q
+     * @param array $params
+     * @param ?int &$count
+     * @return string
+     */
     final public static function deleteQueryParameters(string $q, array $params, int &$count = null): string
     {
         $count = 0;
@@ -130,10 +136,9 @@ class URL implements URLInterface
         return isset(self::$components[$name]);
     }
 
-    # $filter_component: function(string $name, mixed $value, \Closure $get_src_val, ...$args): mixed
+    # $filter_component: function(string $name, mixed $value, array|\ArrayAccess $src_url, ...$args): mixed
     public function __construct(string|array|object $source, callable $filter_component = null, ...$args)
     {
-        $is_object = false;
         if (is_string($source)) {
             if ('' === $source || '#' === $source) {
                 $source = [];
@@ -147,25 +152,18 @@ class URL implements URLInterface
             }
         } elseif (is_array($source) || ($source instanceof \ArrayAccess)) {
         } else {
-            $is_object = true;
+            $source = new ArrayAccessProxy($source);
         }
-        $get_src_val = $is_object ?
-            function (string $name, $default = null) use ($source): mixed {
-                return $source->$name ?? $default;
-            }
-            : function (string $name, $default = null) use (&$source): mixed {
-                return $source[$name] ?? $default;
-            };
         if (null === $filter_component) {
             $filter = [$this, 'filterComponent'];
         } else {
-            $filter = function (string $k, $v) use (&$filter_component, $get_src_val, &$args): mixed {
-                $v = $filter_component($k, $v, $get_src_val, ...$args);
+            $filter = function (string $k, $v) use (&$filter_component, &$source, &$args): mixed {
+                $v = $filter_component($k, $v, $source, ...$args);
                 return $this->filterComponent($k, $v);
             };
         }
         foreach ($this->data as $k => $v) {
-            if (null !== ($v = $filter($k, $get_src_val($k, $v)))) {
+            if (null !== ($v = $filter($k, $source[$k] ?? $v))) {
                 $this->data[$k] = $v;
             }
         }
@@ -218,6 +216,26 @@ class URL implements URLInterface
         } else {
             throw new \Error(EMsg::undefinedProperty($this, $name));
         }
+    }
+
+    final public function offsetExists(mixed $offset): bool
+    {
+        return $this->__isset($offset);
+    }
+
+    final public function offsetGet(mixed $offset): mixed
+    {
+        return $this->__get($offset);
+    }
+
+    final public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->__set($offset, $value);
+    }
+
+    final public function offsetUnset(mixed $offset): void
+    {
+        $this->__unset($offset);
     }
 
     public function current(): mixed

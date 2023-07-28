@@ -187,6 +187,7 @@ final class URLTest extends TestCase
                 [['size', 'nocompress', 'opt'], 5, ''],
             ] as list($params, $count, $query)
         ) {
+            /** @var int $c */
             $this->assertSame($query, URL::deleteQueryParameters($q, $params, $c));
             $this->assertSame($count, $c);
         }
@@ -196,7 +197,7 @@ final class URLTest extends TestCase
     {
         $url_str = 'https://example.com:8080/pictures/search.php?size=actual&nocompress#main-nav';
         $fragment = 'section-5';
-        $url = new URL($url_str, function (string $name, $value, \Closure $src_url, string $fragment = null) {
+        $url = new URL($url_str, function (string $name, $value, array|\ArrayAccess $src_url, string $fragment = null) {
             if ('path' === $name) {
                 return new URL\Path\Segments($value, [URL\Path\Segments::class, 'filterSegmentRaw']);
             } elseif ('query' === $name) {
@@ -210,5 +211,19 @@ final class URLTest extends TestCase
         $this->assertInstanceOf(URL\Path\Segments::class, $url->path);
         $this->assertInstanceOf(URL\Query::class, $url->query);
         $this->assertSame($fragment, $url->fragment);
+    }
+
+    public function testArrayAccess(): void
+    {
+        $url_str = 'https://example.com:8080/pictures/search.php?max=5';
+        $url = new URL($url_str, function (string $name, $value, array|\ArrayAccess $src_url) {
+            return $value;
+        });
+        $this->assertSame('example.com', $url['host']);
+        $this->assertNotTrue(isset($url['fake_property']));
+        $this->assertTrue(isset($url['port']));
+        $this->assertSame('max=5', $url['query']);
+        unset($url['query']);
+        $this->assertSame('', $url['query']);
     }
 }
