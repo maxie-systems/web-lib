@@ -50,7 +50,7 @@ class Segments implements \Countable, \ArrayAccess
     final protected function pathToArray(string|iterable $path): array
     {
         if (is_string($path)) {
-            if ('' === $path || '/' === $path) {
+            if ('' === $path) {
                 return [];
             } else {
                 $path = explode('/', $path);

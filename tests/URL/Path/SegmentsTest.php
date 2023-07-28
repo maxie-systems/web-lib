@@ -35,6 +35,18 @@ final class SegmentsTest extends TestCase
                 $this->assertSame($expected, (string)$segments);
             }
         }
+        $segments = new Segments('');
+        $this->assertCount(0, $segments);
+        $segments = new Segments('', [Segments::class, 'filterSegmentRaw']);
+        $this->assertCount(0, $segments);
+        $segments = new Segments('/');
+        $this->assertCount(0, $segments);
+        $segments = new Segments('/', [Segments::class, 'filterSegmentRaw']);
+        $this->assertCount(0, $segments);
+        $segments = new Segments('/', function (string $segment, int $i, int $last_i): string {
+            return $segment;
+        });
+        $this->assertCount(2, $segments);
     }
 
     public function testOffsetGet(): void
