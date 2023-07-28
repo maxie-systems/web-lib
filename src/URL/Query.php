@@ -105,30 +105,35 @@ class Query implements \Iterator, \Countable, \ArrayAccess, \jsonSerializable
         }
     }
 
-    final public function copy(string|iterable|\stdClass $q, string ...$names)
+    final public function copy(string|iterable|object $q, string ...$names)
     {
         if (is_string($q)) {
             $query = $q;
             $q = [];
             parse_str($query, $q);
-            if ($names) {
+        }
+        if ($names) {
+            if (is_array($q) || ($q instanceof \ArrayAccess)) {
                 foreach ($names as $k) {
                     if (isset($q[$k])) {
                         $this->__set($k, $q[$k]);
                     }
                 }
-                return;
-            }
-        } else {
-            if ($names) {
+            } elseif (is_iterable($q)) {
                 $names = array_fill_keys($names, 1);
                 foreach ($q as $k => $v) {
                     if (isset($names[$k])) {
                         $this->__set($k, $v);
                     }
                 }
-                return;
+            } else {
+                foreach ($names as $k) {
+                    if (isset($q->$k)) {
+                        $this->__set($k, $q[$k]);
+                    }
+                }
             }
+            return;
         }
         foreach ($q as $k => $v) {
             $this->__set($k, $v);
