@@ -136,7 +136,8 @@ class URL implements URLInterface
         return isset(self::$components[$name]);
     }
 
-    # $filter_component: function(string $name, mixed $value, array|\ArrayAccess $src_url, ...$args): mixed
+    # $filter_component:
+    # callable(string $name, mixed $value, array|\ArrayAccess $src_url, ...$args): string|\Stringable|int|null
     public function __construct(string|array|object $source, callable $filter_component = null, ...$args)
     {
         if (is_string($source)) {
@@ -193,6 +194,35 @@ class URL implements URLInterface
             }
         }
         return true;
+    }
+
+    final public function copy(URLInterface|array|\ArrayAccess $source_url, string ...$components): self
+    {
+        if ($source_url instanceof URLInterface) {
+            $copy = [$this, 'copyFromURLInterface'];
+        //} elseif (is_array($source_url) || ($source_url instanceof \ArrayAccess)) {
+        } else {
+            $copy = [$this, 'copyFromArray'];
+        }
+        if ($components) {
+            foreach ($components as $name) {
+                if (self::isComponentName($name)) {
+                    $copy($source_url, $name);
+                } elseif ('net_loc' === $name) {
+                    # <net_loc> - https://datatracker.ietf.org/doc/html/rfc1808#section-2.4.3
+                    foreach (['host', 'port', 'user', 'pass'] as $name) {
+                        $copy($source_url, $name);
+                    }
+                } else {
+                    throw new \UnexpectedValueException('Invalid component name');
+                }
+            }
+        } else {
+            foreach (self::$components as $name => $c) {
+                $copy($source_url, $name);
+            }
+        }
+        return $this;
     }
 
     final public function getType(): URLType
@@ -334,6 +364,18 @@ class URL implements URLInterface
             foreach ($this->data as $k => $v) {
                 $action($k, $callback($k, $v, $this, ...$args));
             }
+        }
+    }
+
+    private function copyFromURLInterface(URLInterface $source_url, string $name): void
+    {
+        $this->data[$name] = $this->filterComponent($name, $source_url->$name) ?? '';
+    }
+
+    private function copyFromArray(array|\ArrayAccess $source_url, string $name): void
+    {
+        if (isset($source_url[$name])) {
+            $this->data[$name] = $this->filterComponent($name, $source_url[$name]) ?? '';
         }
     }
 

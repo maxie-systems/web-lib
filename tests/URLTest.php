@@ -236,4 +236,25 @@ final class URLTest extends TestCase
         $url = new URL('');
         $this->assertTrue($url->isEmpty());
     }
+
+    public function testCopy(): void
+    {
+        $source_url = new URLReadOnly('http://a/b/c/d;p?q#f');
+        $url = new URL('https://example.com:8080/');
+        $url->copy($source_url, 'path', 'query');
+        $this->assertSame($source_url->path, $url->path);
+        $this->assertSame($source_url->query, $url->query);
+        $url->copy($source_url, 'net_loc');
+        foreach (['host', 'port', 'user', 'pass'] as $name) {
+            $this->assertSame($source_url->$name, $url->$name);
+        }
+        $url->copy($source_url, 'net_loc', 'host', 'fragment');
+        foreach (['host', 'port', 'user', 'pass', 'fragment'] as $name) {
+            $this->assertSame($source_url->$name, $url->$name);
+        }
+        $url->copy($source_url);
+        $this->assertSame((string)$source_url, (string)$url);
+        $this->expectException(\UnexpectedValueException::class);
+        $url->copy($source_url, 'path-query');
+    }
 }
