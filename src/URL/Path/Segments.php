@@ -24,6 +24,11 @@ class Segments implements \Countable, \ArrayAccess
         return '' === $segment && (0 === $i || $i === $last_i) ? null : $segment;
     }
 
+    final public static function noFilter(string $s): string
+    {
+        return $s;
+    }
+
     protected function filterSegment(string $segment, int $i, int $last_i): ?string
     {
         return '' === $segment ? null : $segment;
@@ -57,6 +62,37 @@ class Segments implements \Countable, \ArrayAccess
             }
         }
         return $this->filterSegments($path, $this->filter_segment, ...$this->filter_segment_args);
+    }
+
+    final public function slice(int $start, ?int $length = null): self
+    {
+        $start = $this->convertOffset($start);
+        if (null === $length) {
+            $new = array_slice($this->segments, $start);
+        } else {
+            $new = array_slice($this->segments, $start, $length);
+        }
+        return new self($new, [$this::class, 'noFilter']);
+    }
+
+    final public function split(int $index, bool $exclude = false): array
+    {
+        $index = $this->convertOffset($index);
+        $a = [[]];
+        $i = 0;
+        foreach ($this->segments as $k => $v) {
+            if ($k === $index) {
+                $a[++$i] = [];
+                if ($exclude) {
+                    continue;
+                }
+            }
+            $a[$i][] = $v;
+        }
+        foreach ($a as $k => $v) {
+            $a[$k] = new self($a[$k], [$this::class, 'noFilter']);
+        }
+        return $a;
     }
 
     final public function startsWith(string|iterable $path, string &$sub = null): bool

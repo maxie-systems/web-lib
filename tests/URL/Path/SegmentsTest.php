@@ -8,6 +8,42 @@ use PHPUnit\Framework\TestCase;
 
 final class SegmentsTest extends TestCase
 {
+    public function testSlice(): void
+    {
+        $path = new Segments('my/path/to/file');
+        foreach (
+            [
+                [[2], 'to/file'],
+                [[0, 2], 'my/path'],
+                [[2, -3], ''],
+                [[-2], 'to/file'],
+                [[-3, -1], 'path/to'],
+            ] as list($args, $expected)
+        ) {
+            $new_path = $path->slice(...$args);
+            $this->assertInstanceOf(Segments::class, $new_path);
+            $this->assertSame($expected, (string)$new_path);
+        }
+    }
+
+    public function testSplit(): void
+    {
+        $path = new Segments('my/path/to/file');
+        foreach (
+            [
+                [[2], ['my/path', 'to/file']],
+                [[-3], ['my', 'path/to/file']],
+                [[-3, true], ['my', 'to/file']],
+            ] as list($args, $expected)
+        ) {
+            $new_path = $path->split(...$args);
+            $this->assertInstanceOf(Segments::class, $new_path[0]);
+            $this->assertInstanceOf(Segments::class, $new_path[1]);
+            $this->assertSame($expected[0], (string)$new_path[0]);
+            $this->assertSame($expected[1], (string)$new_path[1]);
+        }
+    }
+
     public function testFilterSegment(): void
     {
         $filter = function (string $segment, int $i, int $last_i): ?string {
