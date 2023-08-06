@@ -185,6 +185,16 @@ class URL implements URLInterface
         return true;
     }
 
+    final public function isEmpty(): bool
+    {
+        foreach ($this as $v) {
+            if ('' !== (string)$v) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     final public function getType(): URLType
     {
         $this->isAbsolute($type);

@@ -84,4 +84,12 @@ final class URLReadOnlyTest extends TestCase
         $this->assertInstanceOf(URL\Query::class, $url->query);
         $this->assertSame($fragment, $url->fragment);
     }
+
+    public function testIsEmpty(): void
+    {
+        $url = new URLReadOnly('https://example.com/');
+        $this->assertNotTrue($url->isEmpty());
+        $url = new URLReadOnly('');
+        $this->assertTrue($url->isEmpty());
+    }
 }

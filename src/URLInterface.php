@@ -7,6 +7,7 @@ interface URLInterface extends \Iterator, \ArrayAccess
     public function __construct(string|array|object $source, callable $filter_component = null, ...$args);
     public function isAbsolute(URLType &$type = null): bool;
     public function getType(): URLType;
+    public function isEmpty(): bool;
     public function __unset($name): void;
     public function __set($name, $value): void;
     public function __isset($name): bool;

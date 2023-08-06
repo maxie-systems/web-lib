@@ -226,4 +226,14 @@ final class URLTest extends TestCase
         unset($url['query']);
         $this->assertSame('', $url['query']);
     }
+
+    public function testIsEmpty(): void
+    {
+        $url = new URL('https://example.com/');
+        $this->assertNotTrue($url->isEmpty());
+        $url->scheme = $url->host = $url->path = '';
+        $this->assertTrue($url->isEmpty());
+        $url = new URL('');
+        $this->assertTrue($url->isEmpty());
+    }
 }
