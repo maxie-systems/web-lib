@@ -145,7 +145,7 @@ class URL implements URLInterface
             } else {
                 $u = parse_url($source);
                 if (!$u) {
-                    throw new \UnexpectedValueException('Invalid URL');
+                    throw new Exception\URL\InvalidURLException();
                 }
                 /** @var array $source */
                 $source = $u;
