@@ -385,9 +385,7 @@ class URL implements URLInterface
 
     private function copyFromArray(array|\ArrayAccess $source_url, string $name): void
     {
-        if (isset($source_url[$name])) {
-            $this->data[$name] = $this->filterComponent($name, $source_url[$name]) ?? '';
-        }
+        $this->data[$name] = $this->filterComponent($name, $source_url[$name] ?? '') ?? '';
     }
 
     private array $data = [
