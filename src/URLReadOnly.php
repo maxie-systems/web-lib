@@ -33,12 +33,18 @@ class URLReadOnly implements URLInterface
                 return $this->filterComponent($name, $value, $src_url);
             };
         }
-        $this->url = new URL($source, $filter, ...$args);
+        $url = new URL($source, $filter, ...$args);
+        $this->onCreate($url);
+        $this->url = $url;
     }
 
     protected function filterComponent(string $name, mixed $value, array|\ArrayAccess $src_url): mixed
     {
         return $value;
+    }
+
+    protected function onCreate(URL $url): void
+    {
     }
 
     final public function isAbsolute(URLType &$type = null): bool
