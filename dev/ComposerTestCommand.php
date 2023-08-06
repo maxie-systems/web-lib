@@ -23,7 +23,7 @@ class ComposerTestCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $has_error = false;
+        $test_paths = $src_paths = [];
         foreach ($input->getArgument('paths') as $path) {
             $src_path = 'src';
             $test_path = 'tests';
@@ -37,19 +37,22 @@ class ComposerTestCommand extends Command
                 $src_path .= '.php';
                 $test_path .= 'Test.php';
             }
-            $scripts = [
-                ['./vendor/bin/phpunit', $test_path],
-                ['./vendor/bin/phpcs', '--standard=PSR12', $test_path],
-                ['./vendor/bin/phpcs', '--standard=PSR12', $src_path],
-            ];
-            if ($input->getOption('fix-psr12')) {
-                $scripts[1][0] = './vendor/bin/phpcbf';
-                $scripts[2][0] = './vendor/bin/phpcbf';
-            }
-            foreach ($scripts as $args) {
-                if ($this->runProcess($output, ...$args)) {
-                    $has_error = true;
-                }
+            $src_paths[] = $src_path;
+            $test_paths[] = $test_path;
+        }
+        $scripts = [
+            ['./vendor/bin/phpunit', ...$test_paths],
+            ['./vendor/bin/phpcs', '--standard=PSR12', ...$test_paths],
+            ['./vendor/bin/phpcs', '--standard=PSR12', ...$src_paths],
+        ];
+        if ($input->getOption('fix-psr12')) {
+            $scripts[1][0] = './vendor/bin/phpcbf';
+            $scripts[2][0] = './vendor/bin/phpcbf';
+        }
+        $has_error = false;
+        foreach ($scripts as $args) {
+            if ($this->runProcess($output, ...$args)) {
+                $has_error = true;
             }
         }
         return $has_error ? Command::FAILURE : Command::SUCCESS;
