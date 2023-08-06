@@ -47,9 +47,9 @@ class URLReadOnly implements URLInterface
     {
     }
 
-    final public function isEmpty(): bool
+    final public function isEmpty(string $group = null): bool
     {
-        return $this->url->isEmpty();
+        return $this->url->isEmpty($group);
     }
 
     final public function isAbsolute(URLType &$type = null): bool

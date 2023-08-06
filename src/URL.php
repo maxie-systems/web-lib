@@ -186,12 +186,24 @@ class URL implements URLInterface
         return true;
     }
 
-    final public function isEmpty(): bool
+    final public function isEmpty(string $group = null): bool
     {
-        foreach ($this as $v) {
-            if ('' !== (string)$v) {
-                return false;
+        if (null === $group) {
+            foreach ($this as $v) {
+                if ('' !== (string)$v) {
+                    return false;
+                }
             }
+        } elseif (isset(self::$component_group[$group])) {
+            foreach ($this as $k => $v) {
+                if (!isset(self::$component_group[$group][$k])) {
+                    continue;
+                } elseif ('' !== (string)$v) {
+                    return false;
+                }
+            }
+        } else {
+            throw new \UnexpectedValueException('Invalid group name');
         }
         return true;
     }
@@ -208,10 +220,9 @@ class URL implements URLInterface
             foreach ($components as $name) {
                 if (self::isComponentName($name)) {
                     $copy($source_url, $name);
-                } elseif ('net_loc' === $name) {
-                    # <net_loc> - https://datatracker.ietf.org/doc/html/rfc1808#section-2.4.3
-                    foreach (['host', 'port', 'user', 'pass'] as $name) {
-                        $copy($source_url, $name);
+                } elseif (isset(self::$component_group[$name])) {
+                    foreach (self::$component_group[$name] as $n) {
+                        $copy($source_url, $n);
                     }
                 } else {
                     throw new \UnexpectedValueException('Invalid component name');
@@ -388,5 +399,9 @@ class URL implements URLInterface
         'scheme' => ['type' => 'string'], 'host' => ['type' => 'mixed'], 'port' => ['type' => 'int'],
         'user' => ['type' => 'string'], 'pass' => ['type' => 'string'],
         'path' => ['type' => 'mixed'], 'query' => ['type' => 'mixed'], 'fragment' => ['type' => 'string']
+    ];
+    # <net_loc> - https://datatracker.ietf.org/doc/html/rfc1808#section-2.4.3
+    private static array $component_group = [
+        'net_loc' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
     ];
 }

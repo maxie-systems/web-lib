@@ -231,10 +231,15 @@ final class URLTest extends TestCase
     {
         $url = new URL('https://example.com/');
         $this->assertNotTrue($url->isEmpty());
+        $this->assertNotTrue($url->isEmpty('net_loc'));
         $url->scheme = $url->host = $url->path = '';
         $this->assertTrue($url->isEmpty());
+        $this->assertTrue($url->isEmpty('net_loc'));
         $url = new URL('');
         $this->assertTrue($url->isEmpty());
+        $this->assertTrue($url->isEmpty('net_loc'));
+        $this->expectException(\UnexpectedValueException::class);
+        $url->isEmpty('netloc');
     }
 
     public function testCopy(): void
