@@ -89,10 +89,10 @@ final class URLReadOnlyTest extends TestCase
     {
         $url = new URLReadOnly('https://example.com/');
         $this->assertNotTrue($url->isEmpty());
-        $this->assertNotTrue($url->isEmpty('net_loc'));
+        $this->assertNotTrue($url->isEmpty('authority'));
         $url = new URLReadOnly('');
         $this->assertTrue($url->isEmpty());
-        $this->assertTrue($url->isEmpty('net_loc'));
+        $this->assertTrue($url->isEmpty('authority'));
         $this->expectException(\UnexpectedValueException::class);
         $url->isEmpty('netloc');
     }

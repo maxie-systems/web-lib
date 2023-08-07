@@ -231,13 +231,13 @@ final class URLTest extends TestCase
     {
         $url = new URL('https://example.com/');
         $this->assertNotTrue($url->isEmpty());
-        $this->assertNotTrue($url->isEmpty('net_loc'));
+        $this->assertNotTrue($url->isEmpty('authority'));
         $url->scheme = $url->host = $url->path = '';
         $this->assertTrue($url->isEmpty());
-        $this->assertTrue($url->isEmpty('net_loc'));
+        $this->assertTrue($url->isEmpty('authority'));
         $url = new URL('');
         $this->assertTrue($url->isEmpty());
-        $this->assertTrue($url->isEmpty('net_loc'));
+        $this->assertTrue($url->isEmpty('authority'));
         $this->expectException(\UnexpectedValueException::class);
         $url->isEmpty('netloc');
     }
@@ -249,11 +249,11 @@ final class URLTest extends TestCase
         $url->copy($source_url, 'path', 'query');
         $this->assertSame($source_url->path, $url->path);
         $this->assertSame($source_url->query, $url->query);
-        $url->copy($source_url, 'net_loc');
+        $url->copy($source_url, 'authority');
         foreach (['host', 'port', 'user', 'pass'] as $name) {
             $this->assertSame($source_url->$name, $url->$name);
         }
-        $url->copy($source_url, 'net_loc', 'host', 'fragment');
+        $url->copy($source_url, 'authority', 'host', 'fragment');
         foreach (['host', 'port', 'user', 'pass', 'fragment'] as $name) {
             $this->assertSame($source_url->$name, $url->$name);
         }
@@ -261,5 +261,69 @@ final class URLTest extends TestCase
         $this->assertSame((string)$source_url, (string)$url);
         $this->expectException(\UnexpectedValueException::class);
         $url->copy($source_url, 'path-query');
+    }
+
+    public function testRemoveDotSegments(): void
+    {
+        $urls = [
+            '' => '',
+            '/' => '/',
+            '//' => '/',
+            '///' => '/',
+            '/test//' => '/test/',
+            '//test/' => '/test/',
+            '/test' => '/test',
+            '/test/' => '/test/',
+            'test/' => 'test/',
+            '/a/b/c/./../../g' => '/a/g',
+            'mid/content=5/../6' => 'mid/6',
+            '/xxx/yyy/zzz/../../././././css/../main.css' => '/xxx/main.css',
+            '../../../g'    =>  'g',
+            '../../../../g' =>  'g',
+            '/../../../g'    =>  '/g',
+            '/../../../../g' =>  '/g',
+            '.' => '',
+            '..' => '',
+        ];
+        foreach ($urls as $url => $expected) {
+            $this->assertSame($expected, URL::removeDotSegments($url));
+        }
+        $this->assertSame('', URL::removeDotSegments([]));
+        $this->assertSame('', URL::removeDotSegments(['']));
+        $this->assertSame('-', URL::removeDotSegments(['-']));
+    }
+
+    public function testMergePaths(): void
+    {
+        foreach ($this->getPaths() as list($base, $path, $expected_path_type, $expected_path)) {
+            $this->assertSame($expected_path, URL::mergePaths($base, $path, $path_type));
+            $this->assertSame($expected_path_type, $path_type);
+        }
+    }
+
+    public function testPathToAbsolute(): void
+    {
+        foreach ($this->getPaths() as list($base, $path, , , $expected)) {
+            $this->assertSame($expected, URL::pathToAbsolute($base, $path));
+        }
+    }
+
+    private static function getPaths(): array
+    {
+        return [
+            ['', '', URL\PathType::Empty, '', '/'],
+            ['/', '', URL\PathType::Empty, '/', '/'],
+            ['', '/', URL\PathType::Absolute, '/', '/'],
+            ['/', '/', URL\PathType::Absolute, '/', '/'],
+            ['', '././././css/main.css', URL\PathType::Rootless, '././././css/main.css', '/css/main.css'],
+            ['/test', '././././css/main.css', URL\PathType::Rootless, '/././././css/main.css', '/css/main.css'],
+            [
+                '/test/',
+                '././././css/main.css',
+                URL\PathType::Rootless,
+                '/test/././././css/main.css',
+                '/test/css/main.css'
+            ],
+        ];
     }
 }

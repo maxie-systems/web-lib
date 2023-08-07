@@ -3,6 +3,7 @@
 namespace MaxieSystems;
 
 use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\URL\PathType;
 
 /**
  * Parse URLs
@@ -18,6 +19,8 @@ use MaxieSystems\Exception\Messages as EMsg;
  */
 class URL implements URLInterface
 {
+    public const PATH_NOT_EMPTY = false;
+
     final public static function parse(string $url, bool &$invalid = null): \stdClass
     {
         $u = parse_url($url);
@@ -36,12 +39,14 @@ class URL implements URLInterface
 
     final public static function build(object $url): string
     {
+        # My implementation slightly differs from this: https://datatracker.ietf.org/doc/html/rfc3986#section-5.3
         $s = '';
         if ('' !== $url->scheme) {
             $s .= "$url->scheme:";
         }
-        $h = "$url->host";
-        if ('' !== $h) {
+        $host = (string)$url->host;
+        $path = (string)$url->path;
+        if ('' !== $host) {
             $s .= '//';
             if ('' !== $url->user) {
                 $s .= $url->user;
@@ -50,13 +55,16 @@ class URL implements URLInterface
                 }
                 $s .= '@';
             }
-            $s .= $h;
+            $s .= $host;
             if ($url->port) {
                 $s .= ":$url->port";
             }
+            if (self::isPathRelative($path, self::PATH_NOT_EMPTY)) {
+                $s .= '/';
+            }
         }
-        $s .= $url->path;
-        $q = "$url->query";
+        $s .= $path;
+        $q = (string)$url->query;
         if ('' !== $q) {
             $s .= "?$q";
         }
@@ -131,9 +139,107 @@ class URL implements URLInterface
         return $count ? $s : $q;
     }
 
+    final public static function mergePaths(string $base_path, string $path, PathType &$path_type = null): string
+    {
+        # Merge Paths - https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.3
+        if ('' === $path) {
+            $path_type = PathType::Empty;
+            return $base_path;
+        } elseif ('/' !== $path[0]) {
+            $path_type = PathType::Rootless;
+            $pos = strrpos($base_path, '/');
+            if (false === $pos) {
+                return $path;
+            } elseif (0 === $pos) {
+                # if strrpos returns 0 then $base_path has only 1 slash - the first slash.
+                return "/$path";
+            } else {
+                ++$pos;
+                $p = $base_path;
+                if ($pos < strlen($base_path)) {
+                    if ('..' === substr($p, $pos)) {
+                        $p .= '/';
+                    } else {
+                        $p = substr($p, 0, $pos);
+                    }
+                }
+                return $p . $path;
+            }
+        }
+        $path_type = PathType::Absolute;
+        return $path;
+    }
+
+    final public static function pathToAbsolute(string $base_path, string $path, PathType &$path_type = null): string
+    {
+        # We assume that the $base_url is absolute even if it's not preceded by a slash "/".
+        if ('' === $base_path) {
+            $base_path = '/';
+        } elseif ('/' !== $base_path[0]) {
+            $base_path = "/$base_path";
+        }
+        $path = self::mergePaths($base_path, $path, $path_type);
+        return self::removeDotSegments($path);
+    }
+
+    final public static function removeDotSegments(string|iterable $raw_path): string
+    {
+        if (is_string($raw_path)) {
+            $raw_path = explode('/', $raw_path);
+        }
+        # explode('/', '') : [0 => ''], explode('/', '.') : [0 => '.'], explode('/', '$') : [0 => '$']
+        # explode('/', '/') : [0 => '', 1 => '']
+        $is_abs = false;
+        $i = 0;
+        $path = [];
+        foreach ($raw_path as $v) {
+            if ('..' === $v) {
+                if (count($path)) {
+                    if (end($path) === '..') {
+                        $path[] = $v;
+                    } else {
+                        array_pop($path);
+                    }
+                } else {
+                    #$path[] = $v;
+                }
+            } elseif ('.' === $v) {
+                # skip it...
+            } elseif ('' === $v) {
+                if (0 === $i) {
+                    $is_abs = true;
+                }
+                # skip it...
+            } else {
+                $path[] = $v;
+            }
+            ++$i;
+        }
+        $s = $is_abs && $i > 1 ? '/' : '';
+        if (count($path)) {
+            $s .= implode('/', $path);
+            if ('' === $v || '.' === $v) {
+                $s .= '/';
+            }
+        }
+        return $s;
+    }
+
     final public static function isComponentName(string $name): bool
     {
         return isset(self::$components[$name]);
+    }
+
+    final public static function isPathAbsolute(string $url_path): bool
+    {
+        return '' !== $url_path && '/' === $url_path[0];
+    }
+
+    final public static function isPathRelative(string $url_path, bool $allow_empty = true): bool
+    {
+        return $allow_empty ?
+            '' === $url_path || '/' !== $url_path[0]
+            : '' !== $url_path && '/' !== $url_path[0];
     }
 
     # $filter_component:
@@ -175,7 +281,7 @@ class URL implements URLInterface
         if ('' === (string)$this->scheme) {
             if ('' === (string)$this->host) {
                 $p = (string)$this->path;
-                $type = ('' === $p || '/' !== $p[0]) ? URLType::Relative : URLType::RootRelative;
+                $type = self::isPathRelative($p) ? URLType::Relative : URLType::RootRelative;
                 return false;
             } else {
                 $type = URLType::ProtocolRelative;
@@ -398,8 +504,8 @@ class URL implements URLInterface
         'user' => ['type' => 'string'], 'pass' => ['type' => 'string'],
         'path' => ['type' => 'mixed'], 'query' => ['type' => 'mixed'], 'fragment' => ['type' => 'string']
     ];
-    # <net_loc> - https://datatracker.ietf.org/doc/html/rfc1808#section-2.4.3
+    # <authority> - https://datatracker.ietf.org/doc/html/rfc3986#section-3.2
     private static array $component_group = [
-        'net_loc' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
+        'authority' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
     ];
 }
