@@ -41,7 +41,7 @@ class ComposerTestCommand extends Command
             $test_paths[] = $test_path;
         }
         $scripts = [
-            ['./vendor/bin/phpunit', ...$test_paths],
+            ['./vendor/bin/phpunit', ],
             ['./vendor/bin/phpcs', '--standard=PSR12', ...$test_paths],
             ['./vendor/bin/phpcs', '--standard=PSR12', ...$src_paths],
         ];
@@ -50,9 +50,17 @@ class ComposerTestCommand extends Command
             $scripts[2][0] = './vendor/bin/phpcbf';
         }
         $has_error = false;
-        foreach ($scripts as $args) {
-            if ($this->runProcess($output, ...$args)) {
-                $has_error = true;
+        foreach ($scripts as $i => $args) {
+            if (0 === $i) {
+                foreach ($test_paths as $test_path) {
+                    if ($this->runProcess($output, ...array_merge($args, [$test_path]))) {
+                        $has_error = true;
+                    }
+                }
+            } else {
+                if ($this->runProcess($output, ...$args)) {
+                    $has_error = true;
+                }
             }
         }
         return $has_error ? Command::FAILURE : Command::SUCCESS;
