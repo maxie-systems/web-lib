@@ -28,20 +28,22 @@ final class URLReadOnlyTest extends TestCase
     {
         foreach (
             [
-            'https://msse2.maxtheps.beget.tech/index.php' => true,
-            '/my-page.html' => false,
-            '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => true,
-            'max.v.antipin@gmail.com' => false,
-            'images/05/12/2023/pic-15.gif' => false,
-            ] as $s => $v
+                'https://msse2.maxtheps.beget.tech/index.php',
+            ] as $s
         ) {
             $url = new URLReadOnly($s);
-            $is_abs = $url->isAbsolute();
-            if ($v) {
-                $this->assertTrue($is_abs);
-            } else {
-                $this->assertNotTrue($is_abs);
-            }
+            $this->assertTrue($url->isAbsolute());
+        }
+        foreach (
+            [
+                '/my-page.html',
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php',
+                'max.v.antipin@gmail.com',
+                'images/05/12/2023/pic-15.gif',
+            ] as $s
+        ) {
+            $url = new URLReadOnly($s);
+            $this->assertNotTrue($url->isAbsolute());
         }
     }
 
@@ -49,11 +51,12 @@ final class URLReadOnlyTest extends TestCase
     {
         foreach (
             [
-            'https://msse2.maxtheps.beget.tech/index.php' => URLType::Absolute,
-            '/my-page.html' => URLType::RootRelative,
-            '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => URLType::ProtocolRelative,
-            'max.v.antipin@gmail.com' => URLType::Relative,
-            'images/05/12/2023/pic-15.gif' => URLType::Relative,
+                'https://msse2.maxtheps.beget.tech/index.php' => URLType::Absolute,
+                '/my-page.html' => URLType::RootRelative,
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => URLType::ProtocolRelative,
+                'max.v.antipin@gmail.com' => URLType::Relative,
+                'images/05/12/2023/pic-15.gif' => URLType::Relative,
+                '' => URLType::Empty,
             ] as $s => $expected
         ) {
             $url = new URLReadOnly($s);

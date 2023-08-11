@@ -2,6 +2,6 @@
 
 namespace MaxieSystems\Exception\URL;
 
-class InvalidIPAddressException extends \UnexpectedValueException
+class InvalidIPAddressException extends InvalidHostException
 {
 }

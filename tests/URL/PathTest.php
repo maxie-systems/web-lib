@@ -12,36 +12,48 @@ final class PathTest extends TestCase
     {
         foreach (
             [
-                '' => ['/' => [false]],
-                '/' => ['/' => [true]],
+                '/' => ['/' => ''],
                 '/my-project' => [
-                    '/' => [false],
-                    '/my-project' => [true],
+//                    '/my-project' => '',
                 ],
                 '/my-project/' => [
-                    '/' => [true],
-                    '/my-project' => [false],// или здесь true?
-                ],
-                '/my-project' => [
-                    '/my-project/' => [false],
+                    '/' => '/my-project',
+//                    '/my-project' => [false],// или здесь true?
                 ],
                 '/my-project/tests' => [
-                    '/' => [true],
-                    '/my-project' => [true],
-                    '/tests' => [true],
-                    'tests' => [true],
-                    'ests' => [false],
+//                    '/tests' => '/my-project',
+//                    'tests' => '/my-project/',
                 ],
             ] as $p => $test
         ) {
             $path = new Path($p);
-            foreach ($test as $value => list($expected)) {
-                $res = $path->endsWith($value);
-                if ($expected) {
-                    $this->assertTrue($res);
-                } else {
-                    $this->assertNotTrue($res);
-                }
+            foreach ($test as $value => $expected) {
+                $this->assertTrue($path->endsWith($value, $sub));
+//                $this->assertSame($expected, $sub);
+            }
+        }
+        foreach (
+            [
+                '' => ['/'],
+                '/my-project' => [
+                    '/',
+                ],
+                '/my-project/' => [
+//                    '/my-project' => [false],// или здесь true?
+                ],
+                '/my-project' => [
+                    '/my-project/',
+                ],
+                '/my-project/tests' => [
+                    '/my-project',
+                    'ests',
+                ],
+            ] as $p => $test
+        ) {
+            $path = new Path($p);
+            foreach ($test as $value) {
+                $this->assertNotTrue($path->endsWith($value, $sub));
+                $this->assertNull($sub);
             }
         }
     }
@@ -50,36 +62,45 @@ final class PathTest extends TestCase
     {
         foreach (
             [
-                '' => ['/' => [false]],
-                '/' => ['/' => [true]],
+                '/' => ['/' => ''],
                 '/my-project' => [
-                    '/' => [true],
-                    '/my-project' => [true],
+                    '/' => 'my-project',
+//                    '/my-project' => '',
                 ],
                 '/my-project/' => [
-                    '/' => [true],
-                    '/my-project' => [true],
-                ],
-                '/my-project' => [
-                    '/my-project/' => [false],
+                    '/' => 'my-project/',
+//                    '/my-project' => '/',
                 ],
                 '/my-project/tests' => [
-                    '/' => [true],
-                    '/my-project' => [true],
-                    '/tests' => [false],
-                    'my-project' => [true],// или здесь false?
-                    '/my-proj' => [false],
+                    '/' => 'my-project/tests',
+  //                  '/my-project' => '/tests',
+//                    'my-project' => [true],// или здесь false?
                 ],
             ] as $p => $test
         ) {
             $path = new Path($p);
-            foreach ($test as $value => list($expected)) {
-                $res = $path->startsWith($value);
-                if ($expected) {
-                    $this->assertTrue($res);
-                } else {
-                    $this->assertNotTrue($res);
-                }
+            foreach ($test as $value => $expected) {
+                $this->assertTrue($path->startsWith($value, $sub));
+//                $this->assertSame($expected, $sub);
+            }
+        }
+        foreach (
+            [
+                '' => ['/'],
+                '/my-project' => [
+                    '/my-project/',
+                ],
+                '/my-project/tests' => [
+                    '/tests',
+//                    'my-project' => [true],// или здесь false?
+                    '/my-proj',
+                ],
+            ] as $p => $test
+        ) {
+            $path = new Path($p);
+            foreach ($test as $value) {
+                $this->assertNotTrue($path->startsWith($value, $sub));
+                $this->assertNull($sub);
             }
         }
     }

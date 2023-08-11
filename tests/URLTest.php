@@ -127,21 +127,24 @@ final class URLTest extends TestCase
     {
         foreach (
             [
-                'https://msse2.maxtheps.beget.tech/index.php' => true,
-                '/my-page.html' => false,
-                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => true,
-                'max.v.antipin@gmail.com' => false,
-                'images/05/12/2023/pic-15.gif' => false,
-                '' => false,
-            ] as $s => $v
+                'https://msse2.maxtheps.beget.tech/index.php',
+                'mailto:max.v.antipin@gmail.com',
+            ] as $s
         ) {
             $url = new URL($s);
-            $is_abs = $url->isAbsolute();
-            if ($v) {
-                $this->assertTrue($is_abs);
-            } else {
-                $this->assertNotTrue($is_abs);
-            }
+            $this->assertTrue($url->isAbsolute());
+        }
+        foreach (
+            [
+                '/my-page.html',
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php',
+                'max.v.antipin@gmail.com',
+                'images/05/12/2023/pic-15.gif',
+                '',
+            ] as $s
+        ) {
+            $url = new URL($s);
+            $this->assertNotTrue($url->isAbsolute());
         }
     }
 
@@ -443,5 +446,13 @@ final class URLTest extends TestCase
                 '/css/test55xx.css',
             ],
         ];
+    }
+
+    public function testDebugInfo(): void
+    {
+        $url = new URL('https://example.com/');
+        $info = $url->__debugInfo();
+        $this->assertArrayHasKey('type', $info);
+        $this->assertSame(URLType::Absolute, $info['type']);
     }
 }

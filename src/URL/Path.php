@@ -5,7 +5,7 @@ namespace MaxieSystems\URL;
 use MaxieSystems\Exception\Messages as EMsg;
 
 /**
- * @property string $slug
+ * @property-read string $slug
  */
 class Path
 {
@@ -36,34 +36,6 @@ class Path
         // return $p;
      // }
 
-// function Relative2Root(string $path, string $base_path) : string// Resolve ???
-// {
-    // if('' === $path)
-     // {
-        // if('' === $base_path) return '';# $x = 0;
-        // $path = $base_path;
-        // # $x = 2;
-     // }
-    // elseif('/' !== $path[0])
-     // {
-        // $pos = strrpos($base_path, '/');
-        // if(false === $pos);# $x = 1;# слэша нет в $base_path - ничего не делаем.
-        // elseif(0 === $pos) $path = "/$path";# $x = 1 or 3???;# есть 1 slash - первый символ.
-        // else
-         // {
-            // ++$pos;
-            // $p = $base_path;
-            // if($pos < strlen($base_path))
-             // {
-                // if('..' === substr($p, $pos)) $p .= '/';
-                // else $p = substr($p, 0, $pos);
-             // }
-            // $path = $p.$path;
-            // # $x = 3;
-         // }
-     // }
-    // return namespace\RemoveDots($path);
-// }
 // http://msse2.maxtheps.beget.tech/?path=classes/URL/url.php - здесь есть тесты для нормализации, которые необходимо реализовать.
 // http://msse2.maxtheps.beget.tech/?path=classes/URL-Path/demo.php - демо с большим набором операций.
 // http://msse2.maxtheps.beget.tech/?path=url.path.php
@@ -87,14 +59,14 @@ class Path
 
     final public function __construct(string $value)//, bool $readonly = false)
     {
-		$this->segments = new Path\Segments($value, function (string $segment, int $i, int $last_i): ?string {
-			if ('' === $segment && $i > 0 && $i < $last_i) {
-				return null;
-			}
-			return $segment;
-		});
-		return;
-		if ('' === $value) {
+        $this->segments = new Path\Segments($value, function (string $segment, int $i, int $last_i): ?string {
+            if ('' === $segment && $i > 0 && $i < $last_i) {
+                return null;
+            }
+            return $segment;
+        });
+        return;
+        if ('' === $value) {
             $this->segments = new Path\Segments('');
         } else {
             // $value = \MaxieSystems\URL::Encode($value);

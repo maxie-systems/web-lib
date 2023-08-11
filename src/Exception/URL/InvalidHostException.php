@@ -2,6 +2,6 @@
 
 namespace MaxieSystems\Exception\URL;
 
-class InvalidHostException extends \UnexpectedValueException
+class InvalidHostException extends InvalidComponentException
 {
 }

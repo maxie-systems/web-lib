@@ -286,23 +286,8 @@ class URL implements URLInterface
 
     final public function isAbsolute(URLType &$type = null): bool
     {
-        if ('' === (string)$this->scheme) {
-            if ($this->isEmpty('authority')) {
-                if (self::isPathRelative($this->path, $is_empty)) {
-                    $type = $is_empty
-                            && '' === (string)$this->__get('query')
-                            && '' === (string)$this->__get('fragment') ? URLType::Empty : URLType::Relative;
-                } else {
-                    $type = URLType::RootRelative;
-                }
-                return false;
-            } else {
-                $type = URLType::ProtocolRelative;
-            }
-        } else {
-            $type = URLType::Absolute;
-        }
-        return true;
+        $type = $this->getType();
+        return URLType::Absolute === $type;
     }
 
     final public function isEmpty(string $group = null): bool
@@ -357,8 +342,21 @@ class URL implements URLInterface
 
     final public function getType(): URLType
     {
-        $this->isAbsolute($type);
-        return $type;
+        if ('' === (string)$this->scheme) {
+            if ($this->isEmpty('authority')) {
+                if (self::isPathRelative($this->path, $is_empty)) {
+                    return $is_empty
+                        && '' === (string)$this->__get('query')
+                        && '' === (string)$this->__get('fragment') ? URLType::Empty : URLType::Relative;
+                } else {
+                    return URLType::RootRelative;
+                }
+            } else {
+                return URLType::ProtocolRelative;
+            }
+        } else {
+            return URLType::Absolute;
+        }
     }
 
     public function __isset($name): bool
@@ -450,7 +448,7 @@ class URL implements URLInterface
     public function __debugInfo(): array
     {
         $r = $this->toArray();
-        $this->isAbsolute($r['type']);
+        $r['type'] = $this->getType();
         return $r;
     }
 
