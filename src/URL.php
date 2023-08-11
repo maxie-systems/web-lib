@@ -218,7 +218,7 @@ class URL implements URLInterface
         $s = $is_abs && $i > 1 ? '/' : '';
         if (count($path)) {
             $s .= implode('/', $path);
-            if ('' === $v || '.' === $v) {
+            if ('' === $v || '.' === $v || '..' === $v) {
                 $s .= '/';
             }
         }
