@@ -19,8 +19,6 @@ use MaxieSystems\URL\PathType;
  */
 class URL implements URLInterface
 {
-    public const PATH_NOT_EMPTY = false;
-
     final public static function parse(string $url, bool &$invalid = null): \stdClass
     {
         $u = parse_url($url);
@@ -59,7 +57,7 @@ class URL implements URLInterface
             if ($url->port) {
                 $s .= ":$url->port";
             }
-            if (self::isPathRelative($path, self::PATH_NOT_EMPTY)) {
+            if (self::isPathRootless($path)) {
                 $s .= '/';
             }
         }
@@ -240,11 +238,16 @@ class URL implements URLInterface
         return '' !== $url_path && '/' === $url_path[0];
     }
 
-    final public static function isPathRelative(string $url_path, bool $allow_empty = true): bool
+    final public static function isPathRelative(string $url_path, bool &$is_empty = null): bool
     {
-        return $allow_empty ?
-            '' === $url_path || '/' !== $url_path[0]
-            : '' !== $url_path && '/' !== $url_path[0];
+        $is_empty = '' === $url_path;
+        return $is_empty || '/' !== $url_path[0];
+    }
+
+    final public static function isPathRootless(string $url_path): bool
+    {
+        # path-rootless: https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+        return '' !== $url_path && '/' !== $url_path[0];
     }
 
     # $filter_component:
@@ -284,9 +287,14 @@ class URL implements URLInterface
     final public function isAbsolute(URLType &$type = null): bool
     {
         if ('' === (string)$this->scheme) {
-            if ('' === (string)$this->host) {
-                $p = (string)$this->path;
-                $type = self::isPathRelative($p) ? URLType::Relative : URLType::RootRelative;
+            if ($this->isEmpty('authority')) {
+                if (self::isPathRelative($this->path, $is_empty)) {
+                    $type = $is_empty
+                            && '' === (string)$this->__get('query')
+                            && '' === (string)$this->__get('fragment') ? URLType::Empty : URLType::Relative;
+                } else {
+                    $type = URLType::RootRelative;
+                }
                 return false;
             } else {
                 $type = URLType::ProtocolRelative;
@@ -323,7 +331,7 @@ class URL implements URLInterface
     {
         if ($source_url instanceof URLInterface) {
             $copy = [$this, 'copyFromURLInterface'];
-        //} elseif (is_array($source_url) || ($source_url instanceof \ArrayAccess)) {
+        # } elseif (is_array($source_url) || ($source_url instanceof \ArrayAccess)) {
         } else {
             $copy = [$this, 'copyFromArray'];
         }

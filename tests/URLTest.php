@@ -127,11 +127,12 @@ final class URLTest extends TestCase
     {
         foreach (
             [
-            'https://msse2.maxtheps.beget.tech/index.php' => true,
-            '/my-page.html' => false,
-            '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => true,
-            'max.v.antipin@gmail.com' => false,
-            'images/05/12/2023/pic-15.gif' => false,
+                'https://msse2.maxtheps.beget.tech/index.php' => true,
+                '/my-page.html' => false,
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => true,
+                'max.v.antipin@gmail.com' => false,
+                'images/05/12/2023/pic-15.gif' => false,
+                '' => false,
             ] as $s => $v
         ) {
             $url = new URL($s);
@@ -144,15 +145,84 @@ final class URLTest extends TestCase
         }
     }
 
+    public function testIsPathAbsolute(): void
+    {
+        foreach (
+            [
+                '/',
+                '/test',
+            ] as $path
+        ) {
+            $is = URL::isPathAbsolute($path);
+            $this->assertTrue($is);
+        }
+        foreach (
+            [
+                '',
+                'test/my/software',
+            ] as $path
+        ) {
+            $is = URL::isPathAbsolute($path);
+            $this->assertNotTrue($is);
+        }
+    }
+
+    public function testIsPathRelative(): void
+    {
+        foreach (
+            [
+                ['', true],
+                ['sitemap.xml', false],
+            ] as list($path, $is_empty_expected)
+        ) {
+            $is = URL::isPathRelative($path, $is_empty);
+            $this->assertTrue($is);
+            $this->assertSame($is_empty_expected, $is_empty);
+        }
+        foreach (
+            [
+                '/',
+                '/index.php',
+            ] as $path
+        ) {
+            $is = URL::isPathRelative($path, $is_empty);
+            $this->assertNotTrue($is);
+            $this->assertNotTrue($is_empty);
+        }
+    }
+
+    public function testIsPathRootless(): void
+    {
+        foreach (
+            [
+                'index.html',
+            ] as $path
+        ) {
+            $is = URL::isPathRootless($path);
+            $this->assertTrue($is);
+        }
+        foreach (
+            [
+                '',
+                '/',
+                '/index.php',
+            ] as $path
+        ) {
+            $is = URL::isPathRootless($path);
+            $this->assertNotTrue($is);
+        }
+    }
+
     public function testGetType(): void
     {
         foreach (
             [
-            'https://msse2.maxtheps.beget.tech/index.php' => URLType::Absolute,
-            '/my-page.html' => URLType::RootRelative,
-            '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => URLType::ProtocolRelative,
-            'max.v.antipin@gmail.com' => URLType::Relative,
-            'images/05/12/2023/pic-15.gif' => URLType::Relative,
+                'https://msse2.maxtheps.beget.tech/index.php' => URLType::Absolute,
+                '/my-page.html' => URLType::RootRelative,
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => URLType::ProtocolRelative,
+                'max.v.antipin@gmail.com' => URLType::Relative,
+                'images/05/12/2023/pic-15.gif' => URLType::Relative,
+                '' => URLType::Empty,
             ] as $s => $expected
         ) {
             $url = new URL($s);
@@ -316,13 +386,61 @@ final class URLTest extends TestCase
             ['', '/', URL\PathType::Absolute, '/', '/'],
             ['/', '/', URL\PathType::Absolute, '/', '/'],
             ['', '././././css/main.css', URL\PathType::Rootless, '././././css/main.css', '/css/main.css'],
-            ['/test', '././././css/main.css', URL\PathType::Rootless, '/././././css/main.css', '/css/main.css'],
+            [
+                '/test',
+                '././././css/main.css',
+                URL\PathType::Rootless,
+                '/././././css/main.css',
+                '/css/main.css'
+            ],
             [
                 '/test/',
                 '././././css/main.css',
                 URL\PathType::Rootless,
                 '/test/././././css/main.css',
                 '/test/css/main.css'
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                '/css/../test55xx.css',
+                URL\PathType::Absolute,
+                '/css/../test55xx.css',
+                '/test55xx.css',
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                'css/../test55xx.css',
+                URL\PathType::Rootless,
+                '/root//user-1/.//css/../test55xx.css',
+                '/root/user-1/test55xx.css',
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                'css/../../test55xx.css',
+                URL\PathType::Rootless,
+                '/root//user-1/.//css/../../test55xx.css',
+                '/root/test55xx.css',
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                'css/../../../test55xx.css',
+                URL\PathType::Rootless,
+                '/root//user-1/.//css/../../../test55xx.css',
+                '/test55xx.css',
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                '../css/test55xx.css',
+                URL\PathType::Rootless,
+                '/root//user-1/.//../css/test55xx.css',
+                '/root/css/test55xx.css',
+            ],
+            [
+                '/root//user-1/.//my-page.html',
+                '/../css/test55xx.css',
+                URL\PathType::Absolute,
+                '/../css/test55xx.css',
+                '/css/test55xx.css',
             ],
         ];
     }
