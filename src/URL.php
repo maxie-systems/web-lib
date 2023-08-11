@@ -230,6 +230,11 @@ class URL implements URLInterface
         return isset(self::$components[$name]);
     }
 
+    final public static function getComponentNames(): array
+    {
+        return array_keys(self::$components);
+    }
+
     final public static function isPathAbsolute(string $url_path): bool
     {
         return '' !== $url_path && '/' === $url_path[0];
