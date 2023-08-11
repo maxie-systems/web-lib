@@ -10,6 +10,10 @@ abstract class Host
 {
     final public static function isIP(string $v, bool &$is_v6 = null, string &$value = null): bool
     {
+        if ('' === $v) {
+            $value = $is_v6 = null;
+            return false;
+        }
         if ($value = filter_var($v, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_NULL_ON_FAILURE)) {
             $is_v6 = false;
             return true;
