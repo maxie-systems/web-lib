@@ -28,7 +28,7 @@ final class ResolverTest extends TestCase
         $resolver = new Resolver($base_url);
         foreach ($this->getURLs() as $u => $expected) {
             $url = new \MaxieSystems\URL($u);
-            $resolver->resolve($url);
+            $resolver($url);
             $this->assertSame($expected, (string)$url);
         }
     }
@@ -47,27 +47,6 @@ final class ResolverTest extends TestCase
         $this->expectException(InvalidHostException::class);
         $this->expectExceptionMessageMatches('/\bhost undefined\b/');
         new Resolver($base_url);
-    }
-
-    public function testGetLastFilteredURLType(): void
-    {
-        $urls = [
-            ['https://example.com/index.php?id=5', URLType::Absolute],
-            ['//example.com/?id=55', URLType::ProtocolRelative],
-            ['/my/page.html', URLType::RootRelative],
-            ['index.php', URLType::Relative],
-            ['', URLType::Empty],
-        ];
-        shuffle($urls);
-        $base_url = new URLReadOnly('http://a/b/c/d;p?q#f');
-        $resolver = new Resolver($base_url);
-        foreach ($urls as list($u, $expected)) {
-            $url = new URLReadOnly($u, $resolver);
-            $this->assertSame($expected, $resolver->getLastFilteredURLType());
-        }
-        $resolver = new Resolver($base_url);
-        $this->expectException(\Error::class);
-        $resolver->getLastFilteredURLType();
     }
 
     public static function getURLs(): array

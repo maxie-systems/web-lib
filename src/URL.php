@@ -250,9 +250,7 @@ class URL implements URLInterface
         return '' !== $url_path && '/' !== $url_path[0];
     }
 
-    # $filter_component:
-    # callable(string $name, mixed $value, array|\ArrayAccess $src_url, ...$args): string|\Stringable|int|null
-    public function __construct(string|array|object $source, callable $filter_component = null, ...$args)
+    public function __construct(string|array|object $source)
     {
         if (is_string($source)) {
             if ('' === $source || '#' === $source) {
@@ -269,16 +267,8 @@ class URL implements URLInterface
         } else {
             $source = new ArrayAccessProxy($source);
         }
-        if (null === $filter_component) {
-            $filter = [$this, 'filterComponent'];
-        } else {
-            $filter = function (string $k, $v) use (&$filter_component, &$source, &$args): mixed {
-                $v = $filter_component($k, $v, $source, ...$args);
-                return $this->filterComponent($k, $v);
-            };
-        }
         foreach ($this->data as $k => $v) {
-            if (null !== ($v = $filter($k, $source[$k] ?? $v))) {
+            if (null !== ($v = $this->filterComponent($k, $source[$k] ?? $v))) {
                 $this->data[$k] = $v;
             }
         }

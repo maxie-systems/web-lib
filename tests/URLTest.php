@@ -266,26 +266,6 @@ final class URLTest extends TestCase
         }
     }
 
-    public function testConstructFilter(): void
-    {
-        $url_str = 'https://example.com:8080/pictures/search.php?size=actual&nocompress#main-nav';
-        $fragment = 'section-5';
-        $url = new URL($url_str, function (string $name, $value, array|\ArrayAccess $src_url, string $fragment = null) {
-            if ('path' === $name) {
-                return new URL\Path\Segments($value, [URL\Path\Segments::class, 'filterSegmentRaw']);
-            } elseif ('query' === $name) {
-                return new URL\Query($value);
-            } elseif ('fragment' === $name) {
-                return $fragment ?? $value;
-            }
-            return $value;
-        }, $fragment);
-        $this->assertSame('https', $url->scheme);
-        $this->assertInstanceOf(URL\Path\Segments::class, $url->path);
-        $this->assertInstanceOf(URL\Query::class, $url->query);
-        $this->assertSame($fragment, $url->fragment);
-    }
-
     public function testArrayAccess(): void
     {
         $url_str = 'https://example.com:8080/pictures/search.php?max=5';

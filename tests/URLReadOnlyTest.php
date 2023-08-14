@@ -64,21 +64,18 @@ final class URLReadOnlyTest extends TestCase
         }
     }
 
-    public function testConstructFilter(): void
+    public function testConstructOnCreate(): void
     {
         $url_str = 'https://example.com:8080/pictures/search.php?size=actual&nocompress#main-nav';
         $fragment = 'section-5';
         $url = new URLReadOnly(
             $url_str,
-            function (string $name, $value, array|\ArrayAccess $src_url, string $fragment = null) {
-                if ('path' === $name) {
-                    return new URL\Path\Segments($value, [URL\Path\Segments::class, 'filterSegmentRaw']);
-                } elseif ('query' === $name) {
-                    return new URL\Query($value);
-                } elseif ('fragment' === $name) {
-                    return $fragment ?? $value;
+            function (URL $url, string $fragment = '') {
+                $url->path = new URL\Path\Segments($url->path, [URL\Path\Segments::class, 'filterSegmentRaw']);
+                $url->query = new URL\Query($url->query);
+                if ('' !== $fragment) {
+                    $url->fragment = $fragment;
                 }
-                return $value;
             },
             $fragment
         );

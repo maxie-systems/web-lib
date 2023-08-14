@@ -4,7 +4,6 @@ namespace MaxieSystems;
 
 interface URLInterface extends \Iterator, \ArrayAccess
 {
-    public function __construct(string|array|object $source, callable $filter_component = null, ...$args);
     public function isAbsolute(URLType &$type = null): bool;
     public function getType(): URLType;
     public function isEmpty(string $group = null): bool;
