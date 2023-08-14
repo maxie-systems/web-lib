@@ -306,6 +306,10 @@ final class URLTest extends TestCase
         foreach (['host', 'port', 'user', 'pass'] as $name) {
             $this->assertSame($source_url->$name, $url->$name);
         }
+        $url->copy($source_url, 'origin');
+        foreach (['scheme', 'host', 'port'] as $name) {
+            $this->assertSame($source_url->$name, $url->$name);
+        }
         $url->copy($source_url, 'authority', 'host', 'fragment');
         foreach (['host', 'port', 'user', 'pass', 'fragment'] as $name) {
             $this->assertSame($source_url->$name, $url->$name);

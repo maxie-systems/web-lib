@@ -508,5 +508,6 @@ class URL implements URLInterface
     # <authority> - https://datatracker.ietf.org/doc/html/rfc3986#section-3.2
     private static array $component_group = [
         'authority' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
+        'origin' => ['scheme' => 'scheme', 'host' => 'host', 'port' => 'port'],
     ];
 }
