@@ -45,12 +45,27 @@ abstract class Messages
     }
 
     /**
+     * Use with \TypeError
+     */
+    public static function illegalOffsetType(mixed $offset): string
+    {
+        $type = gettype($offset);
+        return 'Illegal offset type: ' . ('object' === $type ? 'instance of ' . get_class($offset) : $type);
+    }
+
+    /**
      * Use with \OutOfBoundsException
      */
-//    function UndefinedIndex(string $i) : array { return "Undefined index: $i"; }// почему тут string index, а ниже он нетипизирован?
+    public static function undefinedIndex(int|string $i): string
+    {
+        return "Undefined index: $i";
+    }
 
     /**
      * Use with \OutOfRangeException
      */
-  //  function InvalidIndex($i) : array { return 'Invalid index: '.(null === $i || is_scalar($i) ? var_export($i, true) : gettype($i)); }
+    public static function invalidIndex(mixed $i): string
+    {
+        return 'Invalid index: ' . (null === $i || is_scalar($i) ? var_export($i, true) : gettype($i));
+    }
 }
