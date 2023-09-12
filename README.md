@@ -3,12 +3,12 @@ The image is used to run tests.
 
 Build an image:
 ```
-docker build . -t web-lib-dev:latest
+docker build -t maxie-systems/web-lib-dev:latest .
 ```
 
 Run a new container in background:
 ```
-docker run -di --name web-lib-dev -v .:/usr/src/app web-lib-dev
+docker run -di --name web-lib-dev -v .:/usr/src/app --restart unless-stopped maxie-systems/web-lib-dev
 ```
 
 Enter the container:
