@@ -1,6 +1,15 @@
 {
     "name": "maxie-systems/web-lib",
     "type": "library",
+    "authors": [
+        {
+            "name": "Maxim Antipin",
+            "email": "max.v.antipin@gmail.com",
+            "homepage": "https://github.com/max-antipin",
+            "role": "Developer"
+        }
+    ],
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": ">=8.2"
     },
@@ -10,7 +19,6 @@
         "symfony/console": "^6.3",
         "symfony/process": "^6.3"
     },
-    "license": "GPL-3.0-or-later",
     "autoload": {
         "psr-4": {
             "MaxieSystems\\": "src/"
@@ -18,21 +26,14 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "MaxieSystems\\Dev\\": "dev/"
+            "MaxieSystems\\Dev\\": "src-dev/"
         }
     },
-    "authors": [
-        {
-            "name": "Maxim Antipin",
-            "email": "max.v.antipin@gmail.com",
-            "homepage": "https://github.com/max-antipin",
-            "role": "Developer"
-        }
-    ],
     "scripts": {
         "test-all": [
             "./vendor/bin/phpunit tests",
             "./vendor/bin/phpcs --standard=PSR12 src",
+            "./vendor/bin/phpcs --standard=PSR12 src-dev",
             "./vendor/bin/phpcs --standard=PSR12 tests"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
