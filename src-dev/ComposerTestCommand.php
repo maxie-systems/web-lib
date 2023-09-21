@@ -14,45 +14,57 @@ class ComposerTestCommand extends Command
     protected function configure(): void
     {
         $this->setDefinition([
+            new InputOption('unit', 'u', InputOption::VALUE_NONE, 'Run unit tests only'),
             new InputOption('fix-psr12', null, InputOption::VALUE_NONE, 'Use phpcbf instead of phpcs'),
-            //new InputOption('bar', 'b', InputOption::VALUE_REQUIRED),
-            //new InputOption('cat', 'c', InputOption::VALUE_OPTIONAL),
-            new InputArgument('paths', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Files and directories to test'),
+            new InputArgument(
+                'paths',
+                InputArgument::IS_ARRAY | InputArgument::REQUIRED,
+                'Files and directories to test'
+            ),
+            //InputOption::VALUE_REQUIRED//InputOption::VALUE_OPTIONAL
         ]);
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $test_paths = $src_paths = [];
+        $paths = ['src' => [], 'tests' => []];
+        $add = function (array &$p, string $s): void {
+            foreach ($p as &$v) {
+                $v .= $s;
+            }
+        };
         foreach ($input->getArgument('paths') as $path) {
-            $src_path = 'src';
-            $test_path = 'tests';
+            $p = array_keys($paths);
+            $p = array_combine($p, $p);
             if ('/' !== $path[0]) {
-                $src_path .= '/';
-                $test_path .= '/';
+                $add($p, '/');
             }
-            $src_path .= $path;
-            $test_path .= $path;
+            $add($p, $path);
             if (!str_ends_with($path, '/')) {
-                $src_path .= '.php';
-                $test_path .= 'Test.php';
+                $p['tests'] .= 'Test';
+                $add($p, '.php');
             }
-            $src_paths[] = $src_path;
-            $test_paths[] = $test_path;
+            array_walk($paths, fn (array &$paths, string $key, array $p) => $paths[] = $p[$key], $p);
         }
-        $scripts = [
-            ['./vendor/bin/phpunit', ],
-            ['./vendor/bin/phpcs', '--standard=PSR12', ...$test_paths],
-            ['./vendor/bin/phpcs', '--standard=PSR12', ...$src_paths],
-        ];
-        if ($input->getOption('fix-psr12')) {
-            $scripts[1][0] = './vendor/bin/phpcbf';
-            $scripts[2][0] = './vendor/bin/phpcbf';
+        $scripts = [];
+        $scripts[0] = ['./vendor/bin/phpunit', ];
+        if ($input->getOption('unit')) {
+            $output->writeln('Run unit tests only.');
+        } else {
+            $script = './vendor/bin/';
+            if ($input->getOption('fix-psr12')) {
+                $script .= 'phpcbf';
+            } else {
+                $script .= 'phpcs';
+            }
+            foreach ([1 => 'tests', 2 => 'src'] as $i => $key) {
+                $scripts[$i] = [$script, '--standard=PSR12', ...$paths[$key]];
+            }
         }
         $has_error = false;
         foreach ($scripts as $i => $args) {
             if (0 === $i) {
-                foreach ($test_paths as $test_path) {
+                foreach ($paths['tests'] as $test_path) {
                     if ($this->runProcess($output, ...array_merge($args, [$test_path]))) {
                         $has_error = true;
                     }
@@ -66,9 +78,9 @@ class ComposerTestCommand extends Command
         return $has_error ? Command::FAILURE : Command::SUCCESS;
     }
 
-    private function runProcess(OutputInterface $output, string $script_name, ...$args): int
+    private function runProcess(OutputInterface $output, string $script, ...$args): int
     {
-        $process = new Process([$script_name, ...$args]);
+        $process = new Process([$script, ...$args]);
         $output->write('> ');
         $output->writeln($process->getCommandLine());
         $process->run(function ($type, $buffer) use ($output): void {
@@ -79,8 +91,17 @@ class ComposerTestCommand extends Command
             }
         });
         if ($exit_code = $process->getExitCode()) {
-            $output->writeln("<error>Script $script_name handling the {$this->getName()} event returned with error code $exit_code</error>");
+            $output->writeln(
+                $this->formatErrMsg(
+                    "Script $script handling the {$this->getName()} event returned with error code $exit_code"
+                )
+            );
         }
         return $exit_code;
+    }
+
+    private function formatErrMsg(string $msg): string
+    {
+        return "<error>$msg</error>";
     }
 }
