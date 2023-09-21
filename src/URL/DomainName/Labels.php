@@ -19,6 +19,7 @@ class Labels implements \ArrayAccess, \Countable
         }
     }
 
+    #[\ReturnTypeWillChange]
     final public function offsetGet($i): ?string
     {
         if (is_int($i)) {

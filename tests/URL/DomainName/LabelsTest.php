@@ -48,6 +48,7 @@ final class LabelsTest extends TestCase
         $labels = new Labels($domain);
         $this->assertSame('example', $labels[2]);
         $this->assertSame('www', $labels[-1]);
+        $this->assertNull($labels[10]);
         $this->expectException(\TypeError::class);
         echo $labels['22'];
     }
