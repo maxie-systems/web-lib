@@ -19,7 +19,7 @@ final class URLReadOnlyTest extends TestCase
 
     public function testClone(): void
     {
-        $url = new URLReadOnly('https://example.com/');
+        $url = new URLReadOnly('https://example.net/');
         $this->expectException(\Error::class);
         $this->assertObjectHasProperty('url', clone $url);
     }
@@ -71,7 +71,7 @@ final class URLReadOnlyTest extends TestCase
         $url = new URLReadOnly(
             $url_str,
             function (URL $url, string $fragment = '') {
-                $url->path = new URL\Path\Segments($url->path, [URL\Path\Segments::class, 'filterSegmentRaw']);
+                $url->path = new URL\Path\Segments($url->path, null, URL\Path\Segments::FILTER_RAW);
                 $url->query = new URL\Query($url->query);
                 if ('' !== $fragment) {
                     $url->fragment = $fragment;

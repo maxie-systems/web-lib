@@ -46,7 +46,7 @@ final class SegmentsTest extends TestCase
 
     public function testFilterSegment(): void
     {
-        $filter = function (string $segment, int $i, int $last_i): ?string {
+        $filter = function (string $segment): ?string {
             if ('' === $segment) {
                 return null;
             }
@@ -67,33 +67,39 @@ final class SegmentsTest extends TestCase
         }
         foreach ($tests as $expected => $values) {
             foreach ($values as $path) {
-                $segments = new Segments($path, [Segments::class, 'filterSegmentRaw']);
+                $segments = new Segments($path, null, Segments::FILTER_RAW);
                 $this->assertSame($expected, (string)$segments);
             }
         }
         $segments = new Segments('');
         $this->assertCount(0, $segments);
-        $segments = new Segments('', [Segments::class, 'filterSegmentRaw']);
+        $segments = new Segments('', null, Segments::FILTER_RAW);
         $this->assertCount(0, $segments);
         $segments = new Segments('/');
         $this->assertCount(0, $segments);
-        $segments = new Segments('/', [Segments::class, 'filterSegmentRaw']);
+        $segments = new Segments('/', null, Segments::FILTER_RAW);
         $this->assertCount(0, $segments);
-        $segments = new Segments('/', function (string $segment, int $i, int $last_i): string {
+        $segments = new Segments('/', function (string $segment): string {
             return $segment;
         });
         $this->assertCount(2, $segments);
     }
 
+    public function testNoFilterSegment(): void
+    {
+        $segments = new Segments(['folder', null, null, 'another-folder'], false);
+        $this->assertCount(2, $segments);
+    }
+
     public function testOffsetGet(): void
     {
-        $segments = new Segments('/my/pathname/index.php');
+        $segments = new Segments('/first/pathname/index.php');
         $this->assertSame('pathname', $segments[1]);
     }
 
     public function testOffsetExists(): void
     {
-        $segments = new Segments('/my/pathname/index.php');
+        $segments = new Segments('/second/pathname/index.php');
         $this->assertTrue(isset($segments[0]));
         $this->assertNotTrue(isset($segments[10]));
         $this->assertTrue(isset($segments[-1]));
@@ -102,7 +108,7 @@ final class SegmentsTest extends TestCase
 
     public function testOffsetSet(): void
     {
-        $segments = new Segments('/my/pathname/index.php');
+        $segments = new Segments('/third/pathname/index.php');
         $this->expectException(\Error::class);
         $segments[0] = 'xxx';
     }

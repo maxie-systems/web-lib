@@ -6,53 +6,52 @@ use MaxieSystems\Exception\Messages as EMsg;
 
 class Segments implements \Countable, \ArrayAccess
 {
-    final public function __construct(string|iterable $path, callable $filter_segment = null, ...$args)
+    public const FILTER_RAW = 'raw';
+
+    final public function __construct(string|iterable $path, \Closure|false $filter_segment = null, ...$args)
     {
         if (null === $filter_segment) {
+            $this->filter_segment = match ($args[0] ?? null) {
+                self::FILTER_RAW => function (string $segment, int $i, int $last_i): ?string {
+                    return '' === $segment && (0 === $i || $i === $last_i) ? null : $segment;
+                },
+                default => function (string $segment): ?string {
+                    return '' === $segment ? null : $segment;
+                }
+            };
+        } elseif (false === $filter_segment) {
             $this->filter_segment = null;
-        } elseif ($filter_segment instanceof \Closure) {
-            $this->filter_segment = $filter_segment;
         } else {
-            $this->filter_segment = \Closure::fromCallable($filter_segment);
+            $this->filter_segment = $filter_segment;
         }
         $this->filter_segment_args = $args;
-        $this->segments = $this->pathToArray($path);
-    }
-
-    final public static function filterSegmentRaw(string $segment, int $i, int $last_i): ?string
-    {
-        return '' === $segment && (0 === $i || $i === $last_i) ? null : $segment;
-    }
-
-    final public static function noFilter(string $s): string
-    {
-        return $s;
-    }
-
-    protected function filterSegment(string $segment, int $i, int $last_i): ?string
-    {
-        return '' === $segment ? null : $segment;
+        $this->segments = $this->pathToArray($path, true);
     }
 
     final protected function filterSegments(iterable $segments, ?callable $filter_segment, ...$args): array
     {
-        if (null === $filter_segment) {
-            $filter_segment = [$this, 'filterSegment'];
-        }
         $s = [];
-        $i = 0;
-        $last_i = count($segments) - 1;
-        foreach ($segments as $v) {
-            $v = $filter_segment($v, $i, $last_i, ...$args);
-            if (null !== $v) {
-                $s[] = $v;
+        if (null === $filter_segment) {
+            foreach ($segments as $v) {
+                if (null !== $v) {
+                    $s[] = $v;
+                }
             }
-            ++$i;
+        } else {
+            $i = 0;
+            $last_i = count($segments) - 1;
+            foreach ($segments as $v) {
+                $v = $filter_segment($v, $i, $last_i, ...$args);
+                if (null !== $v) {
+                    $s[] = $v;
+                }
+                ++$i;
+            }
         }
         return $s;
     }
 
-    final protected function pathToArray(string|iterable $path): array
+    final protected function pathToArray(string|iterable $path, bool $filter): array
     {
         if (is_string($path)) {
             if ('' === $path) {
@@ -61,7 +60,11 @@ class Segments implements \Countable, \ArrayAccess
                 $path = explode('/', $path);
             }
         }
-        return $this->filterSegments($path, $this->filter_segment, ...$this->filter_segment_args);
+        if ($filter) {
+            return $this->filterSegments($path, $this->filter_segment, ...$this->filter_segment_args);
+        } else {
+            return $this->filterSegments($path, null);
+        }
     }
 
     final public function slice(int $start, ?int $length = null): self
@@ -72,7 +75,7 @@ class Segments implements \Countable, \ArrayAccess
         } else {
             $new = array_slice($this->segments, $start, $length);
         }
-        return new self($new, [$this::class, 'noFilter']);
+        return new self($new, false);
     }
 
     final public function split(int $index, bool $exclude = false): array
@@ -90,7 +93,7 @@ class Segments implements \Countable, \ArrayAccess
             $a[$i][] = $v;
         }
         foreach ($a as $k => $v) {
-            $a[$k] = new self($a[$k], [$this::class, 'noFilter']);
+            $a[$k] = new self($a[$k], false);
         }
         return $a;
     }
@@ -98,23 +101,21 @@ class Segments implements \Countable, \ArrayAccess
     final public function startsWith(string|iterable $path, string &$sub = null): bool
     {
         $sub = null;
-        $c0 = count($this);
-        if (0 === $c0) {
-            return false;
-        }
-        $a = $this->pathToArray($path);
-        $c1 = count($a);
-        if (0 < $c1 && $c1 <= $c0) {
-            $tmp = $this->segments;
-            foreach ($a as $i => $v) {
-                if ($this->segments[$i] === $v) {
-                    unset($tmp[$i]);
-                } else {
-                    return false;
+        if ($c0 = count($this)) {
+            $a = ($path instanceof self) ? $path : $this->pathToArray($path, false);
+            $c1 = count($a);
+            if (0 < $c1 && $c1 <= $c0) {
+                $tmp = $this->segments;
+                foreach ($a as $i => $v) {
+                    if ($this->segments[$i] === $v) {
+                        unset($tmp[$i]);
+                    } else {
+                        return false;
+                    }
                 }
+                $sub = $tmp ? implode('/', $tmp) : '';
+                return true;
             }
-            $sub = $tmp ? implode('/', $tmp) : '';
-            return true;
         }
         return false;
     }

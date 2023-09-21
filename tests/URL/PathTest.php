@@ -8,6 +8,27 @@ use PHPUnit\Framework\TestCase;
 
 final class PathTest extends TestCase
 {
+    public function testConstruct(): void
+    {
+        foreach (
+            [
+                ['', '', '', false, false],
+                ['', '/', '/', true, true],
+                ['/', '', '/', true, true],
+                ['/index.php', '/', '/index.php', true, false],
+                ['test.html', '/path-to-page/', '/path-to-page/test.html', true, false],
+                ['test.html', '/path-to/my-page', '/path-to/test.html', true, false],
+                ['test.html', 'path-to-page', 'test.html', false, false],
+                ['test.html', 'path-to/my-page', 'path-to/test.html', false, false],
+            ] as list($p, $base, $as_str, $is_abs, $is_dir)
+        ) {
+            $path = new Path($p, $base);
+            $this->assertSame($as_str, (string)$path);
+            $this->assertSame($is_abs, $path->isAbsolute());
+            $this->assertSame($is_dir, $path->endsWith('/'));
+        }
+    }
+
     public function testEndsWith(): void
     {
         foreach (
@@ -73,7 +94,7 @@ final class PathTest extends TestCase
                 ],
                 '/my-project/tests' => [
                     '/' => 'my-project/tests',
-  //                  '/my-project' => '/tests',
+//                    '/my-project' => '/tests',
 //                    'my-project' => [true],// или здесь false?
                 ],
             ] as $p => $test
@@ -126,6 +147,7 @@ final class PathTest extends TestCase
                 'test///page//my-xxx.html' => 'test/page/my-xxx.html',
                 '//docker' => '/docker',
                 '//' => '/',
+                '///' => '/',
                 '/docker//' => '/docker/',
             ] as $p => $expected
         ) {
