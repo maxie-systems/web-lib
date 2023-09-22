@@ -3,6 +3,7 @@
 namespace MaxieSystems\Dev;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,10 +20,48 @@ class ComposerTestCommand extends Command
             new InputArgument(
                 'paths',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'Files and directories to test'
+                'Files and directories to test',
+                null,
+                function (CompletionInput $input): array {
+                    $project_root = dirname(__DIR__) . '/src';
+                    // the value the user already typed, e.g. when typing "app:greet Fa" before
+                    // pressing Tab, this will contain "Fa"
+                    $value = $input->getCompletionValue();
+                    $directory = new \RecursiveDirectoryIterator(
+                        $project_root,
+                        \FilesystemIterator::KEY_AS_FILENAME | \FilesystemIterator::CURRENT_AS_SELF
+                        | \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS
+                    );
+                    $filter = new \RecursiveCallbackFilterIterator(
+                        $directory,
+                        function (\RecursiveDirectoryIterator $current, string $filename) use ($value): bool {
+                            if ($filename[0] === '.') {
+                                return false;
+                            }
+                            return $this->segmentStartsWith($current->getSubPathname(), $value);
+                        }
+                    );
+                    $iterator = new \RecursiveIteratorIterator($filter);
+                    $values = [];
+                    foreach ($iterator as $current) {
+                        /** @var \RecursiveDirectoryIterator $current */
+                        $values[] = $current->getSubPathname();
+                    }
+                    return $values;
+                }
             ),
-            //InputOption::VALUE_REQUIRED//InputOption::VALUE_OPTIONAL
         ]);
+    }
+
+    protected function segmentStartsWith(string $path, string $s): bool
+    {
+        $len = strlen($s);
+        foreach (explode('/', $path) as $segment) {
+            if (0 === strncasecmp($segment, $s, $len)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -41,8 +80,12 @@ class ComposerTestCommand extends Command
             }
             $add($p, $path);
             if (!str_ends_with($path, '/')) {
-                $p['tests'] .= 'Test';
-                $add($p, '.php');
+                if (str_ends_with($path, '.php')) {
+                    $p['tests'] = substr_replace($p['tests'], 'Test', -4, 0);
+                } else {
+                    $p['tests'] .= 'Test';
+                    $add($p, '.php');
+                }
             }
             array_walk($paths, fn (array &$paths, string $key, array $p) => $paths[] = $p[$key], $p);
         }
@@ -75,7 +118,7 @@ class ComposerTestCommand extends Command
                 }
             }
         }
-        return $has_error ? Command::FAILURE : Command::SUCCESS;
+        return $has_error ? self::FAILURE : self::SUCCESS;
     }
 
     private function runProcess(OutputInterface $output, string $script, ...$args): int
