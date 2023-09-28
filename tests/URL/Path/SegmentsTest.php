@@ -10,13 +10,13 @@ final class SegmentsTest extends TestCase
 {
     public function testSlice(): void
     {
-        $path = new Segments('my/path/to/file');
+        $path = new Segments('my/path/to/file2');
         foreach (
             [
-                [[2], 'to/file'],
+                [[2], 'to/file2'],
                 [[0, 2], 'my/path'],
                 [[2, -3], ''],
-                [[-2], 'to/file'],
+                [[-2], 'to/file2'],
                 [[-3, -1], 'path/to'],
             ] as list($args, $expected)
         ) {
@@ -122,22 +122,44 @@ final class SegmentsTest extends TestCase
 
     public function testStartsWith(): void
     {
+        $slug = 'my-xxx.html';
+        $path = 'test/page/' . $slug;
+        $s = new Segments($path);
         $tests = [
-            'test/page/my-xxx.html/abc' => [false, null],
-            'test/page/not-my' => [false, null],
-            'test/page' => [true, 'my-xxx.html'],
-            '/test/page' => [true, 'my-xxx.html'],
-            '/test/page/' => [true, 'my-xxx.html'],
-            'test//page' => [true, 'my-xxx.html'],
-            '/test//page' => [true, 'my-xxx.html'],
-            '/test//page/' => [true, 'my-xxx.html'],
-            'test/page/my-xxx.html' => [true, ''],
-            '/test/page/my-xxx.html' => [true, ''],
+            'test' => 'page/' . $slug,
+            'test/page' => $slug,
+            '/test/page' => $slug,
+            '/test/page/' => $slug,
+            'test//page' => $slug,
+            '/test//page' => $slug,
+            '/test//page/' => $slug,
+            $path => '',
+            '/test/page/my-xxx.html' => '',
         ];
-        $s = new Segments('test/page/my-xxx.html');
         foreach ($tests as $path => $expected) {
-            $this->assertSame($expected[0], $s->startsWith($path, $sub));
-            $this->assertSame($expected[1], $sub);
+            $sub = '';
+            $this->assertTrue($s->startsWith($path, $sub));
+            $this->assertSame($expected, $sub);
+            $sub = [];
+            $this->assertTrue($s->startsWith($path, $sub));
+            $this->assertSame($expected ? explode('/', $expected) : [], $sub);
+            $sub = null;
+            $this->assertTrue($s->startsWith($path, $sub));
+            $this->assertInstanceOf($s::class, $sub);
+            $this->assertSame($expected, (string)$sub);
+        }
+        $tests = [
+            'test/page/my-xxx.html/abc',
+            'test/page/not-my',
+            'test/pa',
+        ];
+        foreach ($tests as $path) {
+            $sub = '';
+            $this->assertFalse($s->startsWith($path, $sub));
+            $this->assertNull($sub);
+            $sub = [];
+            $this->assertFalse($s->startsWith($path, $sub));
+            $this->assertNull($sub);
         }
     }
 }
