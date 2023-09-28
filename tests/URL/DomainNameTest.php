@@ -11,8 +11,29 @@ final class DomainNameTest extends TestCase
     public function testCompare(): void
     {
         $dn = new DomainName('www.example.com');
-        $dn->compare('example.com', $label);
+        $res = $dn->compare('example.com', $label);
+        $this->assertSame(1, $res);
         $this->assertSame('www', $label);
+        $dn = new DomainName('example.org');
+        $res = $dn->compare('www.example.org', $label);
+        $this->assertSame(-1, $res);
+        $this->assertSame('www', $label);
+        $dn = new DomainName('example.com');
+        $dn1 = 'example.com';
+        $res = $dn->compare($dn1, $label);
+        $this->assertSame(0, $res);
+        $this->assertSame('', $label);
+        $res = $dn->compare(new DomainName($dn1), $label);
+        $this->assertSame(0, $res);
+        $this->assertSame('', $label);
+        $dn = new DomainName('www.example.net');
+        $dn1 = 'static.example.co.uk';
+        $res = $dn->compare($dn1, $label);
+        $this->assertFalse($res);
+        $this->assertNull($label);
+        $res = $dn->compare(new DomainName($dn1), $label);
+        $this->assertFalse($res);
+        $this->assertNull($label);
     }
 
     public function testToString(): void

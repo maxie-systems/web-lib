@@ -14,23 +14,19 @@ class DomainName extends Host implements \ArrayAccess, \Countable
         $this->labels = new DomainName\Labels($value);
     }
 
-    private readonly DomainName\Labels $labels;
-
-    # https://www.php.net/manual/en/function.strcmp
-    # strcmp(string $string1, string $string2): int
-    # Returns < 0 if string1 is less than string2; > 0 if string1 is greater than string2, and 0 if they are equal.
-    # https://www.php.net/manual/en/collator.compare
-    # Collator::Compare(string $string1, string $string2): int|false
-    # Return comparison result:
-    # 1 if string1 is greater than string2 ;
-    # 0 if string1 is equal to string2;
-    # -1 if string1 is less than string2 .
-    # Returns false on failure.
-    # $a <=> $b	Spaceship	An int less than, equal to, or greater than zero when $a is less than, equal to, or greater than $b, respectively.
-    final public function compare(string $domain, ?string &$label): int|false
+    /**
+     * Returns comparison result:
+     * 1 if this value is subdomain of $domain,
+     * 0 if this value is equal to $domain,
+     * -1 if $domain is subdomain of this value,
+     * false otherwise.
+     */
+    final public function compare(string|self $domain, ?string &$label): int|false
     {
         $label = null;
-        $domain = new DomainName\Labels($domain);
+        if (is_string($domain)) {
+            $domain = new DomainName\Labels($domain);
+        }
         $c0 = count($this);
         $c1 = count($domain);
         if ($c0 === $c1) {
@@ -40,8 +36,7 @@ class DomainName extends Host implements \ArrayAccess, \Countable
             } else {
                 return false;
             }
-        }
-        if ($c0 > $c1) {
+        } elseif ($c0 > $c1) {
             $c = $c1;
             $c1 = $c0;
             $c0 = $c;
@@ -103,4 +98,6 @@ class DomainName extends Host implements \ArrayAccess, \Countable
     {
         return $this->labels->__debugInfo();
     }
+
+    private readonly DomainName\Labels $labels;
 }
