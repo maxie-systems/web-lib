@@ -2,94 +2,46 @@
 
 namespace MaxieSystems\HTTP;
 
-class Header implements IHeader
+use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
+
+/**
+ * @property-read string $name
+ * @property-read string $name_lc
+ * @property-read string|Header\ValueInterface $value
+ */
+class Header
 {
-    final public function __construct(string $name, string $value)
+    final public function __construct(string $header, string|Header\ValueInterface $value = null)
     {
-        $this->value = $value;
-        if ('' === $name) {
-            $this->header = $value;
-            $this->lc_name = $this->name = '';
-        } else {
-            list($this->name, $this->_name, $this->lc_name) = self::GetIndexNames($name);
-            $this->header = "$this->name: $value";
-        }
-    }
-
-    final public static function IsMultiple(string $lc_name): bool
-    {
-        static $names = [
-            'set-cookie' => 1,
-            'Set-Cookie' => 1,
-        ];
-        return isset($names[$lc_name]);
-    }
-
-    final public static function FromString(string $header): ?Header
-    {
-        $value = explode(':', $header, 2);
-        if (2 === count($value)) {
-            $name = $value[0];
-            $value = ltrim($value[1]);
-        } elseif ('HTTP/' === substr($value[0], 0, 5)) {
-            $name = '';
-            $value = $value[0];
-        } else {
-            return null;
-        }
-        return new self($name, $value);
-    }
-
-    final public static function GetIndexNames(string $name): array
-    {
-        $lc_name = strtolower($name);
-        return [ucwords($name, '-'), str_replace('-', '_', $lc_name), $lc_name];
-    }
-
-    final public static function ParseContentType(string $content_type): array
-    {
-        $r = ['', ''];
-        if ($content_type) {
-            $a = explode(';', $content_type, 2);
-            $r[0] = strtolower($a[0]);
-            if (!empty($a[1])) {
-                $s = 'charset=';
-                if (false !== ($pos = strpos($a[1], $s))) {
-                    $r[1] = strtolower(trim(substr($a[1], $pos + strlen($s)), ' \'"'));
-                }
+        if (null === $value) {
+            $header = explode(':', $header, 2);
+            if (2 === count($header)) {
+                $value = ltrim($header[1]);
+                $header = $header[0];
+            } else {
+                throw new EmptyHeaderNameException();
             }
         }
-        return $r;
-    }
-
-    final public function __get($name)
-    {
-        static $names = ['name' => 1, '_name' => 1, 'lc_name' => 1, 'value' => 1];
-        if (isset($names[$name])) {
-            return $this->$name;
+        if ('' === $header) {
+            throw new EmptyHeaderNameException();
         }
-        throw new \Error('Undefined property: ' . __CLASS__ . "::$$name");
+        $this->name_lc = strtolower($header);
+        $this->name = ucwords($header, '-');
+        $this->value = $value;
     }
 
-    final public function GetNames(): array
+
+    final public function __toString(): string
     {
-        return [$this->name, $this->_name, $this->lc_name];
+        return $this->name . ': ' . $this->value;
     }
-    final public function __toString()
-    {
-        return $this->header;
-    }
+
     final public function __debugInfo(): array
     {
-        return ['header' => $this->header];
-    }
-    final public function __clone()
-    {
+        return ['header' => $this->__toString()];
     }
 
-    private $name;
-    private $_name;
-    private $lc_name;
-    private $value;
-    private $header;
+    public readonly string $name;
+    public readonly string $name_lc;
+    private readonly string|Header\ValueInterface $value;
 }
