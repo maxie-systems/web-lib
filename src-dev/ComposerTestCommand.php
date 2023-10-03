@@ -10,6 +10,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+/**
+ * Class for `composer test <FILE-OR-DIR>` commands.
+ *
+ * @author Max Antipin <max.v.antipin@gmail.com>
+ */
 class ComposerTestCommand extends Command
 {
     protected function configure(): void
@@ -66,29 +71,7 @@ class ComposerTestCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $paths = ['src' => [], 'tests' => []];
-        $add = function (array &$p, string $s): void {
-            foreach ($p as &$v) {
-                $v .= $s;
-            }
-        };
-        foreach ($input->getArgument('paths') as $path) {
-            $p = array_keys($paths);
-            $p = array_combine($p, $p);
-            if ('/' !== $path[0]) {
-                $add($p, '/');
-            }
-            $add($p, $path);
-            if (!str_ends_with($path, '/')) {
-                if (str_ends_with($path, '.php')) {
-                    $p['tests'] = substr_replace($p['tests'], 'Test', -4, 0);
-                } else {
-                    $p['tests'] .= 'Test';
-                    $add($p, '.php');
-                }
-            }
-            array_walk($paths, fn (array &$paths, string $key, array $p) => $paths[] = $p[$key], $p);
-        }
+        $paths = $this->getPaths($input->getArgument('paths'));
         $scripts = [];
         $scripts[0] = ['./vendor/bin/phpunit', ];
         if ($input->getOption('unit')) {
@@ -141,6 +124,34 @@ class ComposerTestCommand extends Command
             );
         }
         return $exit_code;
+    }
+
+    private function getPaths(array $args): array
+    {
+        $pkeys = ['src', 'tests'];
+        $paths = array_fill_keys($pkeys, []);
+        $add = function (array &$p, string $s): void {
+            foreach ($p as &$v) {
+                $v .= $s;
+            }
+        };
+        foreach ($args as $path) {
+            $p = array_combine($pkeys, $pkeys);
+            if ('/' !== $path[0]) {
+                $add($p, '/');
+            }
+            $add($p, $path);
+            if (!str_ends_with($path, '/')) {
+                if (str_ends_with($path, '.php')) {
+                    $p['tests'] = substr_replace($p['tests'], 'Test', -4, 0);
+                } else {
+                    $p['tests'] .= 'Test';
+                    $add($p, '.php');
+                }
+            }
+            array_walk($paths, fn (array &$paths, string $key, array $p) => $paths[] = $p[$key], $p);
+        }
+        return $paths;
     }
 
     private function formatErrMsg(string $msg): string
