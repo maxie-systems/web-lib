@@ -1,8 +1,8 @@
 <?php
 
-namespace MaxieSystems\HTTP\Header;
+namespace MaxieSystems\HTTP;
 
-interface ValueInterface
+interface HeaderValueInterface
 {
     public function __toString(): string;
     public function __debugInfo(): array;

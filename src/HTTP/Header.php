@@ -7,11 +7,11 @@ use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
 /**
  * @property-read string $name
  * @property-read string $name_lc
- * @property-read string|Header\ValueInterface $value
+ * @property-read string|HeaderValueInterface $value
  */
 class Header
 {
-    final public function __construct(string $header, string|Header\ValueInterface $value = null)
+    final public function __construct(string $header, string|HeaderValueInterface $value = null)
     {
         if (null === $value) {
             $header = explode(':', $header, 2);
@@ -43,5 +43,5 @@ class Header
 
     public readonly string $name;
     public readonly string $name_lc;
-    private readonly string|Header\ValueInterface $value;
+    private readonly string|HeaderValueInterface $value;
 }
