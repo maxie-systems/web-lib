@@ -32,9 +32,9 @@
     "scripts": {
         "test-all": [
             "./vendor/bin/phpunit tests",
-            "./vendor/bin/phpcs --standard=PSR12 src",
-            "./vendor/bin/phpcs --standard=PSR12 src-dev",
-            "./vendor/bin/phpcs --standard=PSR12 tests"
+            "@php ./vendor/bin/phpcs --standard=PSR12 src",
+            "@php ./vendor/bin/phpcs --standard=PSR12 src-dev",
+            "@php ./vendor/bin/phpcs --standard=PSR12 tests"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "utest": "./vendor/bin/phpunit",
