@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems;
+namespace MaxieSystems\URL;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(IPAddress::class)]
+#[UsesClass(Host::class)]
 final class IPAddressTest extends TestCase
 {
     public function testValue(): void
@@ -23,7 +27,7 @@ final class IPAddressTest extends TestCase
                 '188.187.142.208',
             ] as $host
         ) {
-            $ip = new URL\IPAddress($host);
+            $ip = new IPAddress($host);
             $this->assertSame(trim($host, '[]'), $ip->value);
         }
     }
@@ -41,7 +45,7 @@ final class IPAddressTest extends TestCase
                 '[2010:836B:4179::836B:4179]',
             ] as $host
         ) {
-            $ip = new URL\IPAddress($host);
+            $ip = new IPAddress($host);
             $this->assertTrue($ip->v6);
         }
         foreach (
@@ -50,7 +54,7 @@ final class IPAddressTest extends TestCase
                 '188.187.142.208',
             ] as $host
         ) {
-            $ip = new URL\IPAddress($host);
+            $ip = new IPAddress($host);
             $this->assertNotTrue($ip->v6);
         }
     }

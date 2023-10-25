@@ -2,10 +2,6 @@
 
 namespace MaxieSystems\URL;
 
-use MaxieSystems\Exception\URL\InvalidIPAddressException;
-use MaxieSystems\Exception\URL\InvalidDomainNameException;
-use MaxieSystems\Exception\URL\InvalidHostException;
-
 abstract class Host
 {
     final public static function isIP(string $v, bool &$is_v6 = null, string &$value = null): bool
@@ -13,8 +9,7 @@ abstract class Host
         if ('' === $v) {
             $value = $is_v6 = null;
             return false;
-        }
-        if ($value = filter_var($v, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_NULL_ON_FAILURE)) {
+        } elseif ($value = filter_var($v, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_NULL_ON_FAILURE)) {
             $is_v6 = false;
             return true;
         }
@@ -22,11 +17,12 @@ abstract class Host
             $v = substr($v, 1, -1);
         }
         if ($value = filter_var($v, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_NULL_ON_FAILURE)) {
-            $is_v6 = true;
-            return true;
+            $is_ip = $is_v6 = true;
+        } else {
+            $is_v6 = null;
+            $is_ip = false;
         }
-        $is_v6 = null;
-        return false;
+        return $is_ip;
     }
 
     final public static function isDomainName(string $v): bool
@@ -39,11 +35,11 @@ abstract class Host
     {
         try {
             return new IPAddress($v);
-        } catch (InvalidIPAddressException $e) {
+        } catch (Exception\InvalidIPAddressException $e) {
             try {
                 return new DomainName($v);
-            } catch (InvalidDomainNameException $e) {
-                throw new InvalidHostException();
+            } catch (Exception\InvalidDomainNameException $e) {
+                throw new Exception\InvalidHostException();
             }
         }
     }

@@ -2,10 +2,16 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems;
+namespace MaxieSystems\URL;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Host::class)]
+#[UsesClass(DomainName::class)]
+#[UsesClass(DomainName\Labels::class)]
+#[UsesClass(IPAddress::class)]
 final class HostTest extends TestCase
 {
     public function testIsIP(): void
@@ -23,7 +29,7 @@ final class HostTest extends TestCase
                 '188.187.142.208',
             ] as $host
         ) {
-            $this->assertTrue(URL\Host::isIP($host));
+            $this->assertTrue(Host::isIP($host));
         }
         foreach (
             [
@@ -31,7 +37,7 @@ final class HostTest extends TestCase
                 'example.com',
             ] as $host
         ) {
-            $this->assertNotTrue(URL\Host::isIP($host));
+            $this->assertNotTrue(Host::isIP($host));
         }
     }
 
@@ -47,7 +53,7 @@ final class HostTest extends TestCase
                 'www.xn--80aac6chp.xn--p1ai',
             ] as $host
         ) {
-            $this->assertTrue(URL\Host::isDomainName($host));
+            $this->assertTrue(Host::isDomainName($host));
         }
         foreach (
             [
@@ -61,7 +67,7 @@ final class HostTest extends TestCase
                 'работа.рф',
             ] as $host
         ) {
-            $this->assertNotTrue(URL\Host::isDomainName($host));
+            $this->assertNotTrue(Host::isDomainName($host));
         }
     }
 
@@ -79,7 +85,7 @@ final class HostTest extends TestCase
                 '127.0.0.1',
             ] as $host
         ) {
-            $this->assertInstanceOf(URL\IPAddress::class, URL\Host::create($host));
+            $this->assertInstanceOf(IPAddress::class, Host::create($host));
         }
         foreach (
             [
@@ -87,9 +93,9 @@ final class HostTest extends TestCase
                 'xn--80aac6chp.xn--p1ai',
             ] as $host
         ) {
-            $this->assertInstanceOf(URL\DomainName::class, URL\Host::create($host));
+            $this->assertInstanceOf(DomainName::class, Host::create($host));
         }
-        $this->expectException(Exception\URL\InvalidHostException::class);
-        URL\Host::create('[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80');
+        $this->expectException(Exception\InvalidHostException::class);
+        Host::create('[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80');
     }
 }

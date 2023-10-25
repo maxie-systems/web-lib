@@ -1,6 +1,6 @@
 <?php
 
-namespace MaxieSystems\Exception\URL;
+namespace MaxieSystems\URL\Exception;
 
 abstract class InvalidComponentException extends \UnexpectedValueException
 {

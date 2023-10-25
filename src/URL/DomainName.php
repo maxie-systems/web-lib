@@ -9,7 +9,7 @@ class DomainName extends Host implements \ArrayAccess, \Countable
     final public function __construct(string $value)
     {
         if (!self::isDomainName($value)) {
-            throw new \MaxieSystems\Exception\URL\InvalidDomainNameException();
+            throw new Exception\InvalidDomainNameException();
         }
         $this->labels = new DomainName\Labels($value);
     }

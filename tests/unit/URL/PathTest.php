@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace MaxieSystems\URL;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Path::class)]
+#[UsesClass(\MaxieSystems\URL::class)]
+#[UsesClass(Path\Segments::class)]
 final class PathTest extends TestCase
 {
     public function testConstruct(): void

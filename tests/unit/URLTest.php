@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace MaxieSystems;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(URL::class)]
+#[UsesClass(ArrayAccessProxy::class)]
+#[UsesClass(URLReadOnly::class)]
+#[UsesClass(URL\Query::class)]
 final class URLTest extends TestCase
 {
     public function testBuild(): void

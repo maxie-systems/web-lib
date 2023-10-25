@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace MaxieSystems\URL\Path;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Segments::class)]
+#[UsesClass(\MaxieSystems\Exception\Messages::class)]
 final class SegmentsTest extends TestCase
 {
     public function testSlice(): void

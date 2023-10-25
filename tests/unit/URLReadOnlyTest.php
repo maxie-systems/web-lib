@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace MaxieSystems;
 
+use MaxieSystems\URL\Query;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(URLReadOnly::class)]
+#[UsesClass(URL::class)]
+#[UsesClass(URL\Path\Segments::class)]
+#[UsesClass(URL\Path::class)]
+#[UsesClass(Query::class)]
 final class URLReadOnlyTest extends TestCase
 {
     public function testConstruct(): void

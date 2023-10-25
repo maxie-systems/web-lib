@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace MaxieSystems\URL\DomainName;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Labels::class)]
+#[UsesClass(\MaxieSystems\Exception\Messages::class)]
 final class LabelsTest extends TestCase
 {
     public function testToString(): void

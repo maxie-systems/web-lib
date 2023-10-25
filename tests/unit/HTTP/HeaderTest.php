@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace MaxieSystems\HTTP;
 
 use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Header::class)]
 final class HeaderTest extends TestCase
 {
     public function testConstruct(): void

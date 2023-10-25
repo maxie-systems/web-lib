@@ -1,0 +1,19 @@
+version: '3.8'
+name: 'web-lib-dev'
+services:
+  php:
+    build:
+      context: .
+    configs:
+      - source: xdebug
+        target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+        mode: 0440
+    container_name: 'web-lib-dev'
+    image: 'maxie-systems/web-lib-dev:latest'
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - .:/usr/src/app/
+configs:
+  xdebug:
+    file: ./xdebug.ini

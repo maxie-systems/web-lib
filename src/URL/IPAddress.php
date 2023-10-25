@@ -14,7 +14,7 @@ class IPAddress extends Host
     public function __construct(string $value)
     {
         if (!self::IsIP($value, $is_v6, $v)) {
-            throw new \MaxieSystems\Exception\URL\InvalidIPAddressException();
+            throw new Exception\InvalidIPAddressException();
         }
         $this->v6 = $is_v6;
         $this->value = $v;

@@ -1,6 +1,6 @@
 <?php
 
-namespace MaxieSystems\Exception\URL;
+namespace MaxieSystems\URL\Exception;
 
 class InvalidHostException extends InvalidComponentException
 {

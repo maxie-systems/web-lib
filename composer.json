@@ -31,13 +31,17 @@
     },
     "scripts": {
         "test-all": [
-            "./vendor/bin/phpunit tests",
+            "@php ./vendor/bin/phpunit tests",
             "@php ./vendor/bin/phpcs --standard=PSR12 src",
             "@php ./vendor/bin/phpcs --standard=PSR12 src-dev",
             "@php ./vendor/bin/phpcs --standard=PSR12 tests"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "utest": "./vendor/bin/phpunit",
+        "utest-cover": [
+            "Composer\\Config::disableProcessTimeout",
+            "./vendor/bin/phpunit --coverage-html coverage"
+        ],
         "test-psr12": "./vendor/bin/phpcs --standard=PSR12",
         "fix-psr12": "./vendor/bin/phpcbf --standard=PSR12"
     }

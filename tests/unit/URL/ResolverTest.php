@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace MaxieSystems\URL;
 
-use MaxieSystems\Exception\URL\InvalidHostException;
-use MaxieSystems\Exception\URL\InvalidSchemeException;
+use MaxieSystems\URL\Exception\InvalidHostException;
+use MaxieSystems\URL\Exception\InvalidSchemeException;
 use MaxieSystems\URLReadOnly;
-use MaxieSystems\URLType;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Resolver::class)]
+#[UsesClass(\MaxieSystems\URL::class)]
+#[UsesClass(URLReadOnly::class)]
 final class ResolverTest extends TestCase
 {
     public function testInvoke(): void

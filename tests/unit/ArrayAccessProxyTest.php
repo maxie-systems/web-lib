@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace MaxieSystems;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ArrayAccessProxy::class)]
+#[UsesClass(Exception\Messages::class)]
 final class ArrayAccessProxyTest extends TestCase
 {
     public function testOffsetExists(): void

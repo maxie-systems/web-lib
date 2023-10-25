@@ -1,6 +1,6 @@
 <?php
 
-namespace MaxieSystems\Exception\URL;
+namespace MaxieSystems\URL\Exception;
 
 class InvalidSchemeException extends InvalidComponentException
 {

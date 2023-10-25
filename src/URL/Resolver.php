@@ -2,9 +2,8 @@
 
 namespace MaxieSystems\URL;
 
-use ArrayAccess;
-use MaxieSystems\Exception\URL\InvalidHostException;
-use MaxieSystems\Exception\URL\InvalidSchemeException;
+use MaxieSystems\URL\Exception\InvalidHostException;
+use MaxieSystems\URL\Exception\InvalidSchemeException;
 use MaxieSystems\URLReadOnly;
 use MaxieSystems\URL as URLWritable;
 
@@ -24,7 +23,7 @@ class Resolver
      * Resolve URL to its absolute form
      *
      * @param \MaxieSystems\URL $url
-     * @return \MaxieSystems\URL
+     * @return void
      */
     final public function __invoke(URLWritable $url): void
     {

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MaxieSystems\URL;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(Query::class)]
 final class QueryTest extends TestCase
 {
     public function testConstruct(): void

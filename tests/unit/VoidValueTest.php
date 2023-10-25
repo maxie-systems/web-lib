@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MaxieSystems;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(VoidValue::class)]
 final class VoidValueTest extends TestCase
 {
     public function testToString(): void
