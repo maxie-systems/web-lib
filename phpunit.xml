@@ -24,7 +24,8 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="coverage.txt" showUncoveredFiles="true" />
+      <php outputFile="coverage/coverage.php" />
+      <text outputFile="coverage/coverage.txt" showUncoveredFiles="true" />
     </report>
   </coverage>
 </phpunit>
