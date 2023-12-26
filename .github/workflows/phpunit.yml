@@ -12,11 +12,18 @@ permissions:
 jobs:
   build-test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - run: php -v
       - run: composer -v
+      - name: Install Composer and dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: 8.1
+      - run: php -v
+      - run: composer -v
+    
 #    - uses: actions/checkout@v3
 
 #    - name: Validate composer.json and composer.lock
@@ -43,9 +50,6 @@ jobs:
 # ---
 #     - name: Checkout Code
 #       uses: actions/checkout@v2
-
-#     - name: Install composer and dependencies
-#       uses: php-actions/composer@v6
 
 #     - name: PHPUnit Tests
 #       uses: php-actions/phpunit@v3
