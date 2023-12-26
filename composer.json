@@ -32,15 +32,14 @@
     "scripts": {
         "test-all": [
             "@php ./vendor/bin/phpunit tests",
-            "@php ./vendor/bin/phpcs --standard=PSR12 src",
-            "@php ./vendor/bin/phpcs --standard=PSR12 src-dev",
-            "@php ./vendor/bin/phpcs --standard=PSR12 tests"
+            "@php ./vendor/bin/phpcs --standard=PSR12 src/ src-dev/ tests/"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "test-coverage-html": [
             "Composer\\Config::disableProcessTimeout",
             "@php ./vendor/bin/phpunit --coverage-html coverage/html"
         ],
+        "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
     }
 }

@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          executionOrder="random"
          requireCoverageMetadata="true"
-         beStrictAboutCoverageMetadata="true"
-         beStrictAboutOutputDuringTests="true"
+       failOnEmptyTestSuite="true"
+       failOnWarning="true"
+       failOnRisky="true"
+       failOnDeprecation="true"
+       failOnNotice="true"
+       failOnSkipped="true"
+       failOnIncomplete="true"
+         displayDetailsOnIncompleteTests="true"
+         displayDetailsOnSkippedTests="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
-         failOnDeprecation="true"
-         displayDetailsOnTestsThatTriggerWarnings="true"
-         failOnWarning="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerNotices="true"
-         failOnNotice="true"
-         failOnRisky="true">
+         displayDetailsOnTestsThatTriggerWarnings="true"
+       beStrictAboutCoverageMetadata="true"
+       beStrictAboutOutputDuringTests="true"
+       beStrictAboutChangesToGlobalState="true">
   <testsuites>
     <testsuite name="all">
       <directory>tests</directory>
@@ -24,7 +31,6 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <php outputFile="coverage/coverage.php" />
       <text outputFile="coverage/coverage.txt" showUncoveredFiles="true" />
     </report>
   </coverage>

@@ -3,7 +3,6 @@
 namespace MaxieSystems\Dev;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,39 +20,16 @@ class ComposerTestCommand extends Command
     {
         $this->setDefinition([
             new InputOption('unit', 'u', InputOption::VALUE_NONE, 'Run unit tests only'),
-            new InputOption('fix-psr12', null, InputOption::VALUE_NONE, 'Use phpcbf instead of phpcs'),
+            new InputOption(
+                'fix-psr12',
+                null,
+                InputOption::VALUE_NONE,
+                'Automatically correct coding standard violations with phpcbf before unit testing'
+            ),
             new InputArgument(
                 'paths',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'Files and directories to test',
-                null,
-                function (CompletionInput $input): array {
-                    $project_root = dirname(__DIR__) . '/src';
-                    // the value the user already typed, e.g. when typing "app:greet Fa" before
-                    // pressing Tab, this will contain "Fa"
-                    $value = $input->getCompletionValue();
-                    $directory = new \RecursiveDirectoryIterator(
-                        $project_root,
-                        \FilesystemIterator::KEY_AS_FILENAME | \FilesystemIterator::CURRENT_AS_SELF
-                        | \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS
-                    );
-                    $filter = new \RecursiveCallbackFilterIterator(
-                        $directory,
-                        function (\RecursiveDirectoryIterator $current, string $filename) use ($value): bool {
-                            if ($filename[0] === '.') {
-                                return false;
-                            }
-                            return $this->segmentStartsWith($current->getSubPathname(), $value);
-                        }
-                    );
-                    $iterator = new \RecursiveIteratorIterator($filter);
-                    $values = [];
-                    foreach ($iterator as $current) {
-                        /** @var \RecursiveDirectoryIterator $current */
-                        $values[] = $current->getSubPathname();
-                    }
-                    return $values;
-                }
+                'Files and|or directories to test'
             ),
         ]);
     }
@@ -72,33 +48,18 @@ class ComposerTestCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $paths = $this->getPaths($input->getArgument('paths'));
-        $scripts = [];
-        $scripts[0] = ['./vendor/bin/phpunit', ];
-        if ($input->getOption('unit')) {
-            $output->writeln('Run unit tests only.');
-        } else {
-            $script = './vendor/bin/';
-            if ($input->getOption('fix-psr12')) {
-                $script .= 'phpcbf';
-            } else {
-                $script .= 'phpcs';
-            }
-            foreach ([1 => 'tests', 2 => 'src'] as $i => $key) {
-                $scripts[$i] = [$script, '--standard=PSR12', ...$paths[$key]];
-            }
-        }
         $has_error = false;
-        foreach ($scripts as $i => $args) {
+        foreach ($this->getScripts($input, $output) as $i => $args) {
             if (0 === $i) {
-                foreach ($paths['tests'] as $test_path) {
-                    if ($this->runProcess($output, ...array_merge($args, [$test_path]))) {
+                foreach ($paths[self::UNIT_TEST_DIR] as $test_path) {
+                    $a = $args;
+                    $a[] = $test_path;
+                    if ($this->runProcess($output, ...$a)) {
                         $has_error = true;
                     }
                 }
-            } else {
-                if ($this->runProcess($output, ...$args)) {
-                    $has_error = true;
-                }
+            } elseif ($this->runProcess($output, ...$args, ...array_merge(...array_values($paths)))) {
+                $has_error = true;
             }
         }
         return $has_error ? self::FAILURE : self::SUCCESS;
@@ -126,9 +87,28 @@ class ComposerTestCommand extends Command
         return $exit_code;
     }
 
+    private function getScripts(InputInterface $input, OutputInterface $output): array
+    {
+        $scripts = [
+            0 => [self::BIN_DIR . 'phpunit', '--no-coverage', ]
+        ];
+        if ($input->getOption('unit')) {
+            $output->writeln('Run unit tests only.');
+        } else {
+            if ($input->getOption('fix-psr12')) {
+                # phpcbf runs BEFORE unit tests
+                $scripts = [1 => [self::BIN_DIR . 'phpcbf']] + $scripts;
+            } else {
+                $scripts[1] = [self::BIN_DIR . 'phpcs'];
+            }
+            $scripts[1][] = '--standard=PSR12';
+        }
+        return $scripts;
+    }
+
     private function getPaths(array $args): array
     {
-        $pkeys = ['src', 'tests'];
+        $pkeys = [self::SRC_DIR, self::UNIT_TEST_DIR];
         $paths = array_fill_keys($pkeys, []);
         $add = function (array &$p, string $s): void {
             foreach ($p as &$v) {
@@ -143,9 +123,9 @@ class ComposerTestCommand extends Command
             $add($p, $path);
             if (!str_ends_with($path, '/')) {
                 if (str_ends_with($path, '.php')) {
-                    $p['tests'] = substr_replace($p['tests'], 'Test', -4, 0);
+                    $p[self::UNIT_TEST_DIR] = substr_replace($p[self::UNIT_TEST_DIR], 'Test', -4, 0);
                 } else {
-                    $p['tests'] .= 'Test';
+                    $p[self::UNIT_TEST_DIR] .= 'Test';
                     $add($p, '.php');
                 }
             }
@@ -158,4 +138,8 @@ class ComposerTestCommand extends Command
     {
         return "<error>$msg</error>";
     }
+
+    private const BIN_DIR = './vendor/bin/';
+    private const SRC_DIR = 'src';
+    private const UNIT_TEST_DIR = 'tests/unit';
 }

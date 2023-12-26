@@ -1,4 +1,4 @@
-.vscode/
-vendor/
+/.vscode/
+/vendor/
 .phpunit.result.cache
-coverage/
+/coverage/
