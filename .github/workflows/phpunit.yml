@@ -16,14 +16,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: php -v
-      - run: composer -v
-      - name: Install Composer and dependencies
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies
         uses: php-actions/composer@v6
         with:
           php_version: 8.2
-      - run: php -v
-      - run: composer -v
     
 
 #    - name: Validate composer.json and composer.lock
@@ -44,12 +47,10 @@ jobs:
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
-    # - name: Run test suite
-    #   run: composer run-script test
+      - name: Run test suite
+        run: composer run-script test-all
 
 # ---
-#     - name: Checkout Code
-#       uses: actions/checkout@v2
 
 #     - name: PHPUnit Tests
 #       uses: php-actions/phpunit@v3
