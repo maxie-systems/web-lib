@@ -1,4 +1,4 @@
-name: Run PHPUnit tests
+name: Run tests (PHPUnit & phpcs)
 
 on:
   push:
@@ -15,16 +15,16 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - uses: actions/checkout@v3
       - run: php -v
       - run: composer -v
       - name: Install Composer and dependencies
         uses: php-actions/composer@v6
         with:
-          php_version: 8.1
+          php_version: 8.2
       - run: php -v
       - run: composer -v
     
-#    - uses: actions/checkout@v3
 
 #    - name: Validate composer.json and composer.lock
 #      run: composer validate --strict
