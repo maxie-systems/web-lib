@@ -41,6 +41,8 @@ jobs:
 
       - name: Run test suite
         uses: php-actions/composer@v6
+        env:
+          XDEBUG_MODE: coverage
         with:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: xdebug
