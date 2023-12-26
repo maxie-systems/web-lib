@@ -37,12 +37,10 @@
             "@php ./vendor/bin/phpcs --standard=PSR12 tests"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
-        "utest": "./vendor/bin/phpunit",
-        "utest-cover": [
+        "test-coverage-html": [
             "Composer\\Config::disableProcessTimeout",
-            "./vendor/bin/phpunit --coverage-html coverage/html --coverage-xml coverage/xml"
+            "@php ./vendor/bin/phpunit --coverage-html coverage/html"
         ],
-        "test-psr12": "./vendor/bin/phpcs --standard=PSR12",
-        "fix-psr12": "./vendor/bin/phpcbf --standard=PSR12"
+        "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
     }
 }
