@@ -43,6 +43,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
+          php_extensions: xdebug
           command: run-script
           only_args: test-all
 
