@@ -51,6 +51,6 @@ jobs:
           only_args: test-all
 
       - name: Code coverage report
-        uses: 5monkeys/cobertura-action@master
+        uses: 5monkeys/cobertura-action@v13
         with:
           minimum_coverage: 75
