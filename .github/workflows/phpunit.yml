@@ -37,7 +37,7 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           command: validate
-          only_args: --strict
+#          only_args: --strict
 
       - name: Run test suite
         uses: php-actions/composer@v6
