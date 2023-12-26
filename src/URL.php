@@ -3,6 +3,7 @@
 namespace MaxieSystems;
 
 use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\URL\PathType;
 
 /**
  * Parse URLs
@@ -36,12 +37,14 @@ class URL implements URLInterface
 
     final public static function build(object $url): string
     {
+        # My implementation slightly differs from this: https://datatracker.ietf.org/doc/html/rfc3986#section-5.3
         $s = '';
         if ('' !== $url->scheme) {
             $s .= "$url->scheme:";
         }
-        $h = "$url->host";
-        if ('' !== $h) {
+        $host = (string)$url->host;
+        $path = (string)$url->path;
+        if ('' !== $host) {
             $s .= '//';
             if ('' !== $url->user) {
                 $s .= $url->user;
@@ -50,13 +53,16 @@ class URL implements URLInterface
                 }
                 $s .= '@';
             }
-            $s .= $h;
+            $s .= $host;
             if ($url->port) {
                 $s .= ":$url->port";
             }
+            if (self::isPathRootless($path)) {
+                $s .= '/';
+            }
         }
-        $s .= $url->path;
-        $q = "$url->query";
+        $s .= $path;
+        $q = (string)$url->query;
         if ('' !== $q) {
             $s .= "?$q";
         }
@@ -131,13 +137,120 @@ class URL implements URLInterface
         return $count ? $s : $q;
     }
 
+    final public static function mergePaths(string $base_path, string $path, PathType &$path_type = null): string
+    {
+        # Merge Paths - https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.3
+        if ('' === $path) {
+            $path_type = PathType::Empty;
+            return $base_path;
+        } elseif ('/' !== $path[0]) {
+            $path_type = PathType::Rootless;
+            $pos = strrpos($base_path, '/');
+            if (false === $pos) {
+                return $path;
+            } elseif (0 === $pos) {
+                # if strrpos returns 0 then $base_path has only 1 slash - the first slash.
+                return "/$path";
+            } else {
+                ++$pos;
+                $p = $base_path;
+                if ($pos < strlen($base_path)) {
+                    if ('..' === substr($p, $pos)) {
+                        $p .= '/';
+                    } else {
+                        $p = substr($p, 0, $pos);
+                    }
+                }
+                return $p . $path;
+            }
+        }
+        $path_type = PathType::Absolute;
+        return $path;
+    }
+
+    final public static function pathToAbsolute(string $base_path, string $path, PathType &$path_type = null): string
+    {
+        # We assume that the $base_url is absolute even if it's not preceded by a slash "/".
+        if ('' === $base_path) {
+            $base_path = '/';
+        } elseif ('/' !== $base_path[0]) {
+            $base_path = "/$base_path";
+        }
+        $path = self::mergePaths($base_path, $path, $path_type);
+        return self::removeDotSegments($path);
+    }
+
+    final public static function removeDotSegments(string|iterable $raw_path): string
+    {
+        if (is_string($raw_path)) {
+            $raw_path = explode('/', $raw_path);
+        }
+        # explode('/', '') : [0 => ''], explode('/', '.') : [0 => '.'], explode('/', '$') : [0 => '$']
+        # explode('/', '/') : [0 => '', 1 => '']
+        $is_abs = false;
+        $i = 0;
+        $path = [];
+        foreach ($raw_path as $v) {
+            if ('..' === $v) {
+                if (count($path)) {
+                    if (end($path) === '..') {
+                        $path[] = $v;
+                    } else {
+                        array_pop($path);
+                    }
+                } else {
+                    #$path[] = $v;
+                }
+            } elseif ('.' === $v) {
+                # skip it...
+            } elseif ('' === $v) {
+                if (0 === $i) {
+                    $is_abs = true;
+                }
+                # skip it...
+            } else {
+                $path[] = $v;
+            }
+            ++$i;
+        }
+        $s = $is_abs && $i > 1 ? '/' : '';
+        if (count($path)) {
+            $s .= implode('/', $path);
+            if ('' === $v || '.' === $v || '..' === $v) {
+                $s .= '/';
+            }
+        }
+        return $s;
+    }
+
     final public static function isComponentName(string $name): bool
     {
         return isset(self::$components[$name]);
     }
 
-    # $filter_component: function(string $name, mixed $value, array|\ArrayAccess $src_url, ...$args): mixed
-    public function __construct(string|array|object $source, callable $filter_component = null, ...$args)
+    final public static function getComponentNames(): array
+    {
+        return array_keys(self::$components);
+    }
+
+    final public static function isPathAbsolute(string $url_path): bool
+    {
+        return '' !== $url_path && '/' === $url_path[0];
+    }
+
+    final public static function isPathRelative(string $url_path, bool &$is_empty = null): bool
+    {
+        $is_empty = '' === $url_path;
+        return $is_empty || '/' !== $url_path[0];
+    }
+
+    final public static function isPathRootless(string $url_path): bool
+    {
+        # path-rootless: https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
+        return '' !== $url_path && '/' !== $url_path[0];
+    }
+
+    public function __construct(string|array|object $source)
     {
         if (is_string($source)) {
             if ('' === $source || '#' === $source) {
@@ -145,7 +258,7 @@ class URL implements URLInterface
             } else {
                 $u = parse_url($source);
                 if (!$u) {
-                    throw new \UnexpectedValueException('Invalid URL');
+                    throw new Exception\URL\InvalidURLException();
                 }
                 /** @var array $source */
                 $source = $u;
@@ -154,16 +267,8 @@ class URL implements URLInterface
         } else {
             $source = new ArrayAccessProxy($source);
         }
-        if (null === $filter_component) {
-            $filter = [$this, 'filterComponent'];
-        } else {
-            $filter = function (string $k, $v) use (&$filter_component, &$source, &$args): mixed {
-                $v = $filter_component($k, $v, $source, ...$args);
-                return $this->filterComponent($k, $v);
-            };
-        }
         foreach ($this->data as $k => $v) {
-            if (null !== ($v = $filter($k, $source[$k] ?? $v))) {
+            if (null !== ($v = $this->filterComponent($k, $source[$k] ?? $v))) {
                 $this->data[$k] = $v;
             }
         }
@@ -171,24 +276,77 @@ class URL implements URLInterface
 
     final public function isAbsolute(URLType &$type = null): bool
     {
-        if ('' === (string)$this->scheme) {
-            if ('' === (string)$this->host) {
-                $p = (string)$this->path;
-                $type = ('' === $p || '/' !== $p[0]) ? URLType::Relative : URLType::RootRelative;
-                return false;
-            } else {
-                $type = URLType::ProtocolRelative;
+        $type = $this->getType();
+        return URLType::Absolute === $type;
+    }
+
+    final public function isEmpty(string $group = null): bool
+    {
+        if (null === $group) {
+            foreach ($this as $v) {
+                if ('' !== (string)$v) {
+                    return false;
+                }
+            }
+        } elseif (isset(self::$component_group[$group])) {
+            foreach ($this as $k => $v) {
+                if (!isset(self::$component_group[$group][$k])) {
+                    continue;
+                } elseif ('' !== (string)$v) {
+                    return false;
+                }
             }
         } else {
-            $type = URLType::Absolute;
+            throw new \UnexpectedValueException('Invalid group name');
         }
         return true;
     }
 
+    final public function copy(URLInterface|array|\ArrayAccess $source_url, string ...$components): self
+    {
+        if ($source_url instanceof URLInterface) {
+            $copy = [$this, 'copyFromURLInterface'];
+        # } elseif (is_array($source_url) || ($source_url instanceof \ArrayAccess)) {
+        } else {
+            $copy = [$this, 'copyFromArray'];
+        }
+        if ($components) {
+            foreach ($components as $name) {
+                if (self::isComponentName($name)) {
+                    $copy($source_url, $name);
+                } elseif (isset(self::$component_group[$name])) {
+                    foreach (self::$component_group[$name] as $n) {
+                        $copy($source_url, $n);
+                    }
+                } else {
+                    throw new \UnexpectedValueException('Invalid component name');
+                }
+            }
+        } else {
+            foreach (self::$components as $name => $c) {
+                $copy($source_url, $name);
+            }
+        }
+        return $this;
+    }
+
     final public function getType(): URLType
     {
-        $this->isAbsolute($type);
-        return $type;
+        if ('' === (string)$this->scheme) {
+            if ($this->isEmpty('authority')) {
+                if (self::isPathRelative($this->path, $is_empty)) {
+                    return $is_empty
+                        && '' === (string)$this->__get('query')
+                        && '' === (string)$this->__get('fragment') ? URLType::Empty : URLType::Relative;
+                } else {
+                    return URLType::RootRelative;
+                }
+            } else {
+                return URLType::ProtocolRelative;
+            }
+        } else {
+            return URLType::Absolute;
+        }
     }
 
     public function __isset($name): bool
@@ -280,7 +438,7 @@ class URL implements URLInterface
     public function __debugInfo(): array
     {
         $r = $this->toArray();
-        $this->isAbsolute($r['type']);
+        $r['type'] = $this->getType();
         return $r;
     }
 
@@ -327,6 +485,16 @@ class URL implements URLInterface
         }
     }
 
+    private function copyFromURLInterface(URLInterface $source_url, string $name): void
+    {
+        $this->data[$name] = $this->filterComponent($name, $source_url->$name) ?? '';
+    }
+
+    private function copyFromArray(array|\ArrayAccess $source_url, string $name): void
+    {
+        $this->data[$name] = $this->filterComponent($name, $source_url[$name] ?? '') ?? '';
+    }
+
     private array $data = [
         'scheme' => '', 'host' => '', 'port' => '', 'user' => '', 'pass' => '',
         'path' => '', 'query' => '', 'fragment' => ''
@@ -336,5 +504,10 @@ class URL implements URLInterface
         'scheme' => ['type' => 'string'], 'host' => ['type' => 'mixed'], 'port' => ['type' => 'int'],
         'user' => ['type' => 'string'], 'pass' => ['type' => 'string'],
         'path' => ['type' => 'mixed'], 'query' => ['type' => 'mixed'], 'fragment' => ['type' => 'string']
+    ];
+    # <authority> - https://datatracker.ietf.org/doc/html/rfc3986#section-3.2
+    private static array $component_group = [
+        'authority' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
+        'origin' => ['scheme' => 'scheme', 'host' => 'host', 'port' => 'port'],
     ];
 }

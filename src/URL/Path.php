@@ -5,112 +5,62 @@ namespace MaxieSystems\URL;
 use MaxieSystems\Exception\Messages as EMsg;
 
 /**
- * @property string $slug
+ * @property-read string $slug
  */
 class Path
 {
-    final public static function Parse(string $v, ?bool &$absolute, ?bool &$trailing_slash): array
+    final public function __construct(string $value, string $base_path = '')
     {
-        $absolute = $trailing_slash = false;
-        if ('' === $v) {
-            return [];
-        } elseif ('/' === $v) {
-            $absolute = $trailing_slash = true;
-            return [];
+        //$this->absolute = true;
+        //if ('' === $base_path) {
+        //} elseif ('' === $base_path) {
+        //}
+        if ('' === $value) {
+            if ('' === $base_path) {
+                $this->segments = new Path\Segments('');
+                $this->absolute = false;
+                $this->ends_with_slash = false;
+                return;
+            }
+            #$value = $base_path;
+        //} elseif ('/' === $value) {
         }
-        if ('/' === $v[0]) {
-            $absolute = true;
-            $v = substr($v, 1);
-        }
-        if ('/' === substr($v, -1)) {
-            $trailing_slash = true;
-            $v = substr($v, 0, -1);
-        }
-        return explode('/', $v);
-    }
-
-    // final public static function FromArray(iterable $d) : Path
-     // {
-        // $p = new Path(null);
-        // foreach($d as $v) $p->segments[] = $v;
-        // return $p;
-     // }
-
-// function Relative2Root(string $path, string $base_path) : string// Resolve ???
-// {
-    // if('' === $path)
-     // {
-        // if('' === $base_path) return '';# $x = 0;
-        // $path = $base_path;
-        // # $x = 2;
-     // }
-    // elseif('/' !== $path[0])
-     // {
-        // $pos = strrpos($base_path, '/');
-        // if(false === $pos);# $x = 1;# слэша нет в $base_path - ничего не делаем.
-        // elseif(0 === $pos) $path = "/$path";# $x = 1 or 3???;# есть 1 slash - первый символ.
-        // else
-         // {
-            // ++$pos;
-            // $p = $base_path;
-            // if($pos < strlen($base_path))
-             // {
-                // if('..' === substr($p, $pos)) $p .= '/';
-                // else $p = substr($p, 0, $pos);
-             // }
-            // $path = $p.$path;
-            // # $x = 3;
-         // }
-     // }
-    // return namespace\RemoveDots($path);
-// }
-// http://msse2.maxtheps.beget.tech/?path=classes/URL/url.php - здесь есть тесты для нормализации, которые необходимо реализовать.
-// http://msse2.maxtheps.beget.tech/?path=classes/URL-Path/demo.php - демо с большим набором операций.
-// http://msse2.maxtheps.beget.tech/?path=url.path.php
-// function Normalize(string $path, string $base_path = '/') : string// Он должен изменить текущий объект, или создать новый??? Сделать две версии метода: для "себя" и для нового объекта??? Для "себя" нормализацию можно выполнять в конструкторе, передавая туда флаг, показывающий, что требуется нормализация.
-// {
-    // if('' === $path) $path = $base_path;
-    // elseif('\\' === $path) $path = '/';// Вот это, по идее, актуально только для файловых директорий.
-    // elseif('/' !== $path)
-     // {
-        // do
-         // {
-            // $path = str_replace('//', '/', $path, $count);
-         // }
-        // while($count);
-        // $path = \MaxieSystems\URL::Encode($path);
-        // if('/' !== $path[0]) $path = namespace\Relative2Root($path, $base_path);
-        // $path = namespace\RemoveDots($path);// Relative2Root вроде бы вызывает RemoveDots ??? Убрать повторяющийся вызов !!!
-     // }
-    // return $path;
-// }
-
-    final public function __construct(string $value)//, bool $readonly = false)
-    {
-		$this->segments = new Path\Segments($value, function (string $segment, int $i, int $last_i): ?string {
-			if ('' === $segment && $i > 0 && $i < $last_i) {
-				return null;
-			}
-			return $segment;
-		});
-		return;
-		if ('' === $value) {
-            $this->segments = new Path\Segments('');
-        } else {
-            // $value = \MaxieSystems\URL::Encode($value);
-            $s = $this->Parse($value, $this->absolute, $this->trailing_slash);
-            // filter, normalize, encode ???
-        }
-        //$this->value = $value;
+        $value = \MaxieSystems\URL::mergePaths($base_path, $value);
+        $this->segments = new Path\Segments(
+            $value,
+            function (string $segment, int $i, int $last_i): ?string {
+                $is_empty = ('' === $segment);
+                if ($i === 0) {
+                    $this->absolute = $is_empty;
+                    if ($last_i === 0) {
+                        $this->ends_with_slash = $this->absolute;
+                    }
+                    if ($this->absolute) {
+                        $segment = null;
+                    }
+                } elseif ($i === $last_i) {
+                    $this->ends_with_slash = $is_empty;
+                    if ($this->ends_with_slash) {
+                        $segment = null;
+                    }
+                } elseif ($is_empty) {
+                    $segment = null;
+                }
+                return $segment;
+            }
+        );
+        // \MaxieSystems\URL::encode($segment);
+        // filter, normalize, encode ???
     }
 
     final public function endsWith(string $dir, string &$sub = null): bool
     {
+        $sub = null;
         if ('' === $dir) {
             throw new \UnexpectedValueException('First argument must not be empty');
         }
         if ('/' === $dir) {
-            return '' === $this->segments[-1];
+            return $this->ends_with_slash;
         }
         // to-do...
         return false;
@@ -118,90 +68,24 @@ class Path
 
     final public function startsWith(string $dir, string &$sub = null): bool
     {
+        $sub = null;
         if ('' === $dir) {
             throw new \UnexpectedValueException('First argument must not be empty');
         }
         if ('/' === $dir) {
-            return '' === $this->segments[0];
+            return $this->absolute;
         }
         // to-do...
         return false;
     }
-    // final public function IsSubdirOf(string $dir, Path &$sub = null) : bool// нужно изменить алгоритм его работы.
-     // {
-        // $sub = null;
-        // if('' === $dir || '/' === $dir) return false;// if($this->InvalidStr($dir) || $this->InvalidStr($this->value);
-        // $dir = trim($dir, '/');
-        // $res = false;
-        // $this->Walk(function(Path $p0, Path $p1, int $n, int $count, string $dir, int $len) use(&$res, &$sub){
-            // $path = "$p0";
-            // if($path === $dir)
-             // {
-                // $sub = $p1;
-                // if($count === $n);# пути равны
-                // else $res = true;
-                // return false;
-             // }
-            // elseif(strlen($path) > $len) return false;
-        // }, false, $dir, strlen($dir));
-        // return $res;
-     // }
-//Traverse(callable $callback, int $mode, ...$args) ??? mode - набор констант, пока что их будет 2. А какой тогда будет смысл возвращаемого значения?
-    // final public function Walk(callable $callback, bool $reverse = false, ...$args) : ?int
-     // {
-        // $cnt = count($this->segments);
-        // if(!$cnt) return null;
-        // $p0 = new Path();
-        // $s0 = $p0->__get('segments');
-        // $p1 = self::FromArray($this->segments);
-        // $s1 = $p1->__get('segments');
-        // if($reverse)
-         // {
-            // $n = $cnt;
-            // do
-             // {
-                // if(false === $callback($p1, $p0, $n, $cnt, ...$args))
-                 // {
-                    // if(count($s1) && $this->absolute)
-                     // {
-                        // $p1->absolute = true;
-                        // $p1->OnModify();
-                     // }
-                    // if(count($s0)) $p0->__set('trailing_slash', $this->trailing_slash);
-                    // elseif(count($s1)) $p1->__set('trailing_slash', $this->trailing_slash);
-                    // return $n;
-                 // }
-                // $s0->Unshift($s1->Pop());
-                // --$n;
-             // }
-            // while(count($s1));
-         // }
-        // else
-         // {
-            // $n = 0;
-            // do
-             // {
-                // $s0[] = $s1->Shift();
-                // if(false === $callback($p0, $p1, ++$n, $cnt, ...$args))
-                 // {
-                    // if(count($s1)) $p1->__set('trailing_slash', $this->trailing_slash);
-                    // elseif(count($s0)) $p0->__set('trailing_slash', $this->trailing_slash);
-                    // if(count($s0) && $this->absolute)
-                     // {
-                        // $p0->absolute = true;
-                        // $p0->OnModify();
-                     // }
-                    // return $n;
-                 // }
-             // }
-            // while(count($s1));
-         // }
-        // if($this->absolute) $p0->absolute = true;
-        // $p0->__set('trailing_slash', $this->trailing_slash);
-        // return null;
-     // }
 
-    final public function __get($name)
+    final public function isAbsolute(): bool
+    {
+        return $this->absolute;
+    }
+
+// final public function decode or getDecoded(): string{ return rawurldecode($v);return $this->segments->getDecoded(); }
+/*    final public function __get($name)
     {
         static $keys = ['segments' => 1, 'absolute' => 1, 'trailing_slash' => 1];// trailing_slash = is_dir ???
         if (isset($keys[$name])) {
@@ -216,28 +100,31 @@ class Path
         }
         // elseif('dirname' === $name) return '\\' === ($v = dirname($this->value)) ? '/' : $v;
         throw new \Error(EMsg::undefinedProperty($this, $name));
+    }*/
+
+    final public function __set($name, $value): void
+    {
+        throw new \Error(EMsg::readonlyObject($this));
     }
 
-    // final public function __set($name, $value)
-     // {
-        // if('trailing_slash' === $name)
-         // {
-            // $this->$name = (bool)$value;
-            // $this->Modify();
-            // return;
-         // }
-        // list($e, $m, $c) = E\UndefinedProperty($this, $name);
-        // throw new $e($m, $c);
-     // }
+    final public function __unset($name): void
+    {
+        throw new \Error(EMsg::readonlyObject($this));
+    }
 
     final public function __toString()
     {
-        return $this->segments->__toString();
+        $s = $this->absolute ? '/' : '';
+        $s .= $this->segments->__toString();
+        if ($this->ends_with_slash && count($this->segments)) {
+            $s .= '/';
+        }
+        return $s;
     }
 
     final public function __debugInfo(): array
     {
-        return ['value' => $this->__toString()];// 'decoded' => htmlspecialchars(rawurldecode($v))
+        return ['value' => $this->__toString()];
     }
 
     final public function __clone()
@@ -245,7 +132,7 @@ class Path
         $this->segments = clone $this->segments;
     }
 
-    private Path\Segments $segments;
-    private $absolute = false;
-    private $trailing_slash = false;
+    private readonly Path\Segments $segments;
+    private readonly bool $absolute;
+    private readonly bool $ends_with_slash;
 }

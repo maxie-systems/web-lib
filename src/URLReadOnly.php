@@ -18,27 +18,23 @@ use MaxieSystems\Exception\Messages as EMsg;
  */
 class URLReadOnly implements URLInterface
 {
-    public function __construct(string|array|object $source, callable $filter_component = null, ...$args)
+    public function __construct(string|array|object $source, callable $on_create = null, ...$args)
     {
-        if (null === $filter_component) {
-            $filter = $this->filterComponent(...);
-        } else {
-            $filter = function (
-                string $name,
-                mixed $value,
-                array|\ArrayAccess $src_url,
-                ...$args
-            ) use (&$filter_component): mixed {
-                $value = $filter_component($name, $value, $src_url, ...$args);
-                return $this->filterComponent($name, $value, $src_url);
-            };
+        $url = new URL($source);
+        if (null !== $on_create) {
+            $on_create($url, ...$args);
         }
-        $this->url = new URL($source, $filter, ...$args);
+        $this->onCreate($url);
+        $this->url = $url;
     }
 
-    protected function filterComponent(string $name, mixed $value, array|\ArrayAccess $src_url): mixed
+    protected function onCreate(URL $url): void
     {
-        return $value;
+    }
+
+    final public function isEmpty(string $group = null): bool
+    {
+        return $this->url->isEmpty($group);
     }
 
     final public function isAbsolute(URLType &$type = null): bool

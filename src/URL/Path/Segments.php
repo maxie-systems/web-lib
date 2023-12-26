@@ -6,48 +6,49 @@ use MaxieSystems\Exception\Messages as EMsg;
 
 class Segments implements \Countable, \ArrayAccess
 {
-    final public function __construct(string|iterable $path, callable $filter_segment = null, ...$args)
+    public const FILTER_RAW = 'raw';
+
+    final public function __construct(string|iterable $path, \Closure|false $filter_segment = null, ...$args)
     {
         if (null === $filter_segment) {
+            $this->filter_segment = match ($args[0] ?? null) {
+                self::FILTER_RAW => fn (string $segment, int $i, int $last_i): ?string
+                    => '' === $segment && (0 === $i || $i === $last_i) ? null : $segment,
+                default => fn (string $segment): ?string => '' === $segment ? null : $segment
+            };
+        } elseif (false === $filter_segment) {
             $this->filter_segment = null;
-        } elseif ($filter_segment instanceof \Closure) {
-            $this->filter_segment = $filter_segment;
         } else {
-            $this->filter_segment = \Closure::fromCallable($filter_segment);
+            $this->filter_segment = $filter_segment;
         }
         $this->filter_segment_args = $args;
         $this->segments = $this->pathToArray($path);
     }
 
-    final public static function filterSegmentRaw(string $segment, int $i, int $last_i): ?string
-    {
-        return '' === $segment && (0 === $i || $i === $last_i) ? null : $segment;
-    }
-
-    protected function filterSegment(string $segment, int $i, int $last_i): ?string
-    {
-        return '' === $segment ? null : $segment;
-    }
-
     final protected function filterSegments(iterable $segments, ?callable $filter_segment, ...$args): array
     {
-        if (null === $filter_segment) {
-            $filter_segment = [$this, 'filterSegment'];
-        }
         $s = [];
-        $i = 0;
-        $last_i = count($segments) - 1;
-        foreach ($segments as $v) {
-            $v = $filter_segment($v, $i, $last_i, ...$args);
-            if (null !== $v) {
-                $s[] = $v;
+        if (null === $filter_segment) {
+            foreach ($segments as $v) {
+                if (null !== $v) {
+                    $s[] = $v;
+                }
             }
-            ++$i;
+        } else {
+            $i = 0;
+            $last_i = count($segments) - 1;
+            foreach ($segments as $v) {
+                $v = $filter_segment($v, $i, $last_i, ...$args);
+                if (null !== $v) {
+                    $s[] = $v;
+                }
+                ++$i;
+            }
         }
         return $s;
     }
 
-    final protected function pathToArray(string|iterable $path): array
+    final protected function pathToArray(string|iterable $path, \Closure|false $filter = null): array
     {
         if (is_string($path)) {
             if ('' === $path) {
@@ -56,30 +57,77 @@ class Segments implements \Countable, \ArrayAccess
                 $path = explode('/', $path);
             }
         }
-        return $this->filterSegments($path, $this->filter_segment, ...$this->filter_segment_args);
+        $args = [];
+        if (null === $filter) {
+            $args[] = $this->filter_segment;
+            $args += $this->filter_segment_args;
+        } elseif (false === $filter) {
+            $args[] = null;
+        } else {
+            $args[] = $filter;
+        }
+        return $this->filterSegments($path, ...$args);
     }
 
-    final public function startsWith(string|iterable $path, string &$sub = null): bool
+    final public function slice(int $start, ?int $length = null): self
     {
-        $sub = null;
-        $c0 = count($this);
-        if (0 === $c0) {
-            return false;
+        $start = $this->convertOffset($start);
+        if (null === $length) {
+            $new = array_slice($this->segments, $start);
+        } else {
+            $new = array_slice($this->segments, $start, $length);
         }
-        $a = $this->pathToArray($path);
-        $c1 = count($a);
-        if (0 < $c1 && $c1 <= $c0) {
-            $tmp = $this->segments;
-            foreach ($a as $i => $v) {
-                if ($this->segments[$i] === $v) {
-                    unset($tmp[$i]);
-                } else {
-                    return false;
+        return new self($new, false);
+    }
+
+    final public function split(int $index, bool $exclude = false): array
+    {
+        $index = $this->convertOffset($index);
+        $a = [[]];
+        $i = 0;
+        foreach ($this->segments as $k => $v) {
+            if ($k === $index) {
+                $a[++$i] = [];
+                if ($exclude) {
+                    continue;
                 }
             }
-            $sub = $tmp ? implode('/', $tmp) : '';
-            return true;
+            $a[$i][] = $v;
         }
+        foreach ($a as $k => $v) {
+            $a[$k] = new self($a[$k], false);
+        }
+        return $a;
+    }
+
+    final public function startsWith(string|iterable|self $path, string|array|self &$sub = null): bool
+    {
+        if ($c0 = count($this)) {
+            if ($path instanceof self) {
+                $path = $path->segments;
+            } else {
+                $path = $this->pathToArray($path, fn (string $segment): ?string => '' === $segment ? null : $segment);
+            }
+            $c1 = count($path);
+            if (0 < $c1 && $c1 <= $c0) {
+                $tmp = $this->segments;
+                foreach ($path as $i => $v) {
+                    if ($this->segments[$i] === $v) {
+                        unset($tmp[$i]);
+                    } else {
+                        $sub = null;
+                        return false;
+                    }
+                }
+                $sub = match (gettype($sub)) {
+                    'string' => $tmp ? implode('/', $tmp) : '',
+                    'array' => array_values($tmp),
+                    default => new self($tmp, false)
+                };
+                return true;
+            }
+        }
+        $sub = null;
         return false;
     }
 
