@@ -31,6 +31,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
+          args: --classmap-authoritative
 
       - name: Validate composer.json and composer.lock
         uses: php-actions/composer@v6
@@ -49,22 +50,7 @@ jobs:
           command: run-script
           only_args: test-all
 
-      - uses: 5monkeys/cobertura-action@master
+      - name: Code coverage report
+        uses: 5monkeys/cobertura-action@master
         with:
           minimum_coverage: 75
-#     - name: PHPUnit Tests
-#       uses: php-actions/phpunit@v3
-#       env:
-#         XDEBUG_MODE: coverage
-#       with:
-#         bootstrap: vendor/autoload.php
-#         configuration: phpunit.xml
-#         php_extensions: xdebug
-#         args: tests --coverage-clover ./coverage.xml
-
-#     - name: Upload to Codecov
-#       uses: codecov/codecov-action@v2
-#       with:
-#         token: ${{ secrets.CODE_COV_TOKEN }}
-#         files: ./coverage.xml
-#         verbose: true
