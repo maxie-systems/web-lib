@@ -5,6 +5,9 @@ services:
     build:
       context: .
     configs:
+      - source: phpunit
+        target: /usr/src/app/phpunit.xml
+        mode: 0440
       - source: xdebug
         target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
         mode: 0440
@@ -13,7 +16,15 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-      - .:/usr/src/app/
+      - ./composer.json:/usr/src/app/composer.json
+      - ./composer.lock:/usr/src/app/composer.lock
+      - ./coverage/:/usr/src/app/coverage/
+      - ./src/:/usr/src/app/src/
+      - ./src-dev/:/usr/src/app/src-dev/
+      - ./tests/:/usr/src/app/tests/
+      - ./vendor/:/usr/src/app/vendor/
 configs:
+  phpunit:
+    file: ./phpunit.xml
   xdebug:
     file: ./xdebug.ini
