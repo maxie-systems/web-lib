@@ -31,7 +31,7 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="coverage/coverage.txt" showUncoveredFiles="true" />
+      <cobertura outputFile="./coverage.xml" />
     </report>
   </coverage>
 </phpunit>
