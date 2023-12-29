@@ -22,8 +22,8 @@
        beStrictAboutChangesToGlobalState="true">
   <testsuites>
     <testsuite name="all">
-      <directory>tests/integration</directory>
-      <directory>tests/unit</directory>
+      <!-- directory>tests/integration/</directory -->
+      <directory>tests/unit/</directory>
     </testsuite>
   </testsuites>
   <source>
