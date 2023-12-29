@@ -1,17 +1,12 @@
 name: Run tests (PHPUnit & phpcs)
 
 on:
-  push:
-    branches: [ "main", "dev" ]
   pull_request:
-    types: [opened, reopened, edited, converted_to_draft, ready_for_review]
+    types: [ opened, reopened, edited, ready_for_review ]
     branches: [ "main", "dev" ]
 
 permissions:
-  id-token: write
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 env:
   PHP_VERSION: 8.2
