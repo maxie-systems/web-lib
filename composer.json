@@ -34,7 +34,7 @@
         "test-all": [
             "@php ./vendor/bin/phpunit tests",
             "@code-coverage-report ./tests/coverage.txt",
-            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/ tests/integration/"
+            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "test-coverage-html": [
