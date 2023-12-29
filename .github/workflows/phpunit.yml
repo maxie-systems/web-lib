@@ -48,5 +48,18 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: xdebug
+          command: ./vendor/bin/phpunit
+
+      - name: Code coverage report
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ env.PHP_VERSION }}
           command: run-script
-          only_args: test-all
+          only_args: code-coverage-report --ignore-threshold
+
+      - name: Check code against the PSR-12 coding standard
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ env.PHP_VERSION }}
+          command: run-script
+          only_args: test-psr12-all

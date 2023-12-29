@@ -32,9 +32,9 @@
     },
     "scripts": {
         "test-all": [
-            "@php ./vendor/bin/phpunit tests",
-            "@code-coverage-report --ignore-threshold ./tests/coverage.txt",
-            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/"
+            "@php ./vendor/bin/phpunit",
+            "@code-coverage-report",
+            "@test-psr12-all"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "test-coverage-html": [
@@ -43,6 +43,7 @@
         ],
         "code-coverage-report": "MaxieSystems\\Dev\\ComposerCodeCoverageCommand",
         "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
+        "test-psr12-all": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/",
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
     }
 }
