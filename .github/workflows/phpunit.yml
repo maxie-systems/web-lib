@@ -55,8 +55,8 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
-          command: run-script
-          only_args: code-coverage-report --ignore-threshold
+          command: code-coverage-report
+          only_args: --ignore-threshold
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6
