@@ -1,6 +1,8 @@
 name: Run tests (PHPUnit & phpcs)
 
 on:
+  push:
+    branches: [ "main", "dev" ]
   pull_request:
     types: [ opened, reopened, edited, ready_for_review ]
     branches: [ "main", "dev" ]
