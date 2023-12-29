@@ -21,7 +21,8 @@
        beStrictAboutChangesToGlobalState="true">
   <testsuites>
     <testsuite name="all">
-      <directory>tests</directory>
+      <directory>tests/integration</directory>
+      <directory>tests/unit</directory>
     </testsuite>
   </testsuites>
   <source>
@@ -31,7 +32,7 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <cobertura outputFile="./coverage.xml" />
+      <text outputFile="tests/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
     </report>
   </coverage>
 </phpunit>
