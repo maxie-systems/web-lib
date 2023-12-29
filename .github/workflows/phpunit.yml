@@ -48,7 +48,8 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: xdebug
-          command: ./vendor/bin/phpunit
+          command: exec
+          only_args: phpunit
 
       - name: Code coverage report
         uses: php-actions/composer@v6
