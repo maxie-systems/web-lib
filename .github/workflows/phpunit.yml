@@ -1,17 +1,12 @@
 name: Run tests (PHPUnit & phpcs)
 
 on:
-  push:
-    branches: [ "main", "dev" ]
   pull_request:
-    types: [opened, reopened, edited, converted_to_draft]
+    types: [ opened, reopened, edited, ready_for_review ]
     branches: [ "main", "dev" ]
 
 permissions:
-  id-token: write
   contents: read
-  issues: write
-  pull-requests: write
 
 env:
   PHP_VERSION: 8.2
@@ -53,8 +48,3 @@ jobs:
           php_extensions: xdebug
           command: run-script
           only_args: test-all
-
-      - name: Code coverage report
-        uses: 5monkeys/cobertura-action@v13
-        with:
-          minimum_coverage: 75

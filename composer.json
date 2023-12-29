@@ -33,13 +33,15 @@
     "scripts": {
         "test-all": [
             "@php ./vendor/bin/phpunit tests",
-            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/"
+            "@code-coverage-report ./tests/coverage.txt",
+            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/ tests/integration/"
         ],
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "test-coverage-html": [
             "Composer\\Config::disableProcessTimeout",
-            "@php ./vendor/bin/phpunit --coverage-html coverage/html"
+            "@php ./vendor/bin/phpunit --coverage-html tests/coverage-html"
         ],
+        "code-coverage-report": "MaxieSystems\\Dev\\ComposerCodeCoverageCommand",
         "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
     }
