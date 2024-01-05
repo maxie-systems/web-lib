@@ -42,6 +42,9 @@ jobs:
           command: validate
           args: --strict --with-dependencies
 
+      - name: Create temporary folder
+        run: mkdir var/
+
       - name: Run test suite
         uses: php-actions/composer@v6
         env:
