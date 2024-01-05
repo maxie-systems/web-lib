@@ -39,7 +39,7 @@
         "test": "MaxieSystems\\Dev\\ComposerTestCommand",
         "test-coverage-html": [
             "Composer\\Config::disableProcessTimeout",
-            "@php ./vendor/bin/phpunit --coverage-html tests/coverage-html"
+            "@php ./vendor/bin/phpunit --coverage-html var/coverage-html"
         ],
         "code-coverage-report": "MaxieSystems\\Dev\\ComposerCodeCoverageCommand",
         "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
