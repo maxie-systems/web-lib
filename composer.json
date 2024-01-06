@@ -32,6 +32,7 @@
     },
     "scripts": {
         "test-all": [
+            "@composer validate --strict --with-dependencies",
             "@php ./vendor/bin/phpunit",
             "@code-coverage-report",
             "@test-psr12-all"
