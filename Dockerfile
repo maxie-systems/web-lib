@@ -1,8 +1,14 @@
 #syntax=docker/dockerfile:1.4
 
-FROM php:8.2-cli-alpine
-LABEL org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.0.2"
+ARG PHP_VERSION=8.2
+ARG COMPOSER_VERSION=2.6
+
+FROM composer:${COMPOSER_VERSION} AS composer_image
+
+FROM php:${PHP_VERSION}-cli-alpine
+LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
+      org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
+      org.opencontainers.image.version="0.0.3"
 RUN set -eux; \
     apk update \
  && apk upgrade \
@@ -13,5 +19,5 @@ RUN set -eux; \
  && pecl clear-cache \
  && apk del .build-dependencies \
  && mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/
