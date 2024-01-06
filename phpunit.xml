@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         defaultTestSuite="all"
+         defaultTestSuite="All"
          executionOrder="random"
          requireCoverageMetadata="true"
        failOnEmptyTestSuite="true"
@@ -21,8 +21,11 @@
        beStrictAboutOutputDuringTests="true"
        beStrictAboutChangesToGlobalState="true">
   <testsuites>
-    <testsuite name="all">
+    <testsuite name="All">
       <!-- directory>tests/integration/</directory -->
+      <directory>tests/unit/</directory>
+    </testsuite>
+    <testsuite name="Unit">
       <directory>tests/unit/</directory>
     </testsuite>
   </testsuites>
