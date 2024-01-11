@@ -6,6 +6,7 @@ namespace MaxieSystems;
 
 use MaxieSystems\URL\Query;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -55,21 +56,26 @@ final class URLReadOnlyTest extends TestCase
         }
     }
 
-    public function testGetType(): void
+    public static function URLsWithTypesProvider(): array
     {
-        foreach (
-            [
-                'https://msse2.maxtheps.beget.tech/index.php' => URLType::Absolute,
-                '/my-page.html' => URLType::RootRelative,
-                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php' => URLType::ProtocolRelative,
-                'max.v.antipin@gmail.com' => URLType::Relative,
-                'images/05/12/2023/pic-15.gif' => URLType::Relative,
-                '' => URLType::Empty,
-            ] as $s => $expected
-        ) {
-            $url = new URLReadOnly($s);
-            $this->assertSame($expected, $url->getType());
-        }
+        return [
+            'Absolute' => ['https://msse2.maxtheps.beget.tech/index.php', URLType::Absolute],
+            'Root-relative' => ['/my-page.html', URLType::RootRelative],
+            'Protocol-relative' => [
+                '//msse2.maxtheps.beget.tech/?path=classes/URL/IsAbsolute.php',
+                URLType::ProtocolRelative
+            ],
+            'Relative (email)' => ['max.v.antipin@gmail.com', URLType::Relative],
+            'Relative' => ['images/05/12/2023/pic-15.gif', URLType::Relative],
+            'Empty' => ['', URLType::Empty],
+        ];
+    }
+
+    #[DataProvider('URLsWithTypesProvider')]
+    public function testGetType(string $url, URLType $expected): void
+    {
+        $u = new URLReadOnly($url);
+        $this->assertSame($expected, $u->getType());
     }
 
     public function testConstructOnCreate(): void
