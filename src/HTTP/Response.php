@@ -3,15 +3,15 @@
 namespace MaxieSystems\HTTP;
 
 /**
- * @property int $http_code
- * @property int $content_length
- * @property string $content_type
- * @property string $mime
- * @property ?string $charset
- * @property \MaxieSystems\URLInterface $url
- * @property \MaxieSystems\HTTP\Headers $headers
- * @property $cookies
- * @property string $headers_source
+ * @property-read int $http_code
+ * @property-read int $content_length
+ * @property-read string $content_type
+ * @property-read string $mime
+ * @property-read ?string $charset
+ * @property-read \MaxieSystems\URLInterface $url
+ * @property-read \MaxieSystems\HTTP\Headers $headers
+ * @property-read $cookies
+ * @property-read string $headers_source
  */
 class Response// implements \JsonSerializable // ???
 {
@@ -59,7 +59,7 @@ class Response// implements \JsonSerializable // ???
         return false;
     }
 
-    final public function GetInfo(string ...$fields): array
+    final public function getInfo(string ...$fields): array
     {
         if ($fields) {
             $r = [];
@@ -132,5 +132,6 @@ class Response// implements \JsonSerializable // ???
 
     private $url = null, $headers = null, $cookies = null, $content;
     private readonly array $info;
-    private array $properties = ['url' => true, 'http_code' => true, 'content_type' => true, 'content_length' => true, 'mime' => null, 'charset' => null, 'headers' => null, 'cookies' => null, 'headers_source' => null];
+    private array $properties = ['url' => true, 'http_code' => true, 'content_type' => true, 'content_length' => true,
+     'mime' => null, 'charset' => null, 'headers' => null, 'cookies' => null, 'headers_source' => null];
 }
