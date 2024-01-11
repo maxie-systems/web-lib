@@ -22,16 +22,19 @@
        beStrictAboutChangesToGlobalState="true">
   <testsuites>
     <testsuite name="All">
-      <!-- directory>tests/integration/</directory -->
+      <directory>tests/integration/</directory>
       <directory>tests/unit/</directory>
     </testsuite>
     <testsuite name="Unit">
       <directory>tests/unit/</directory>
     </testsuite>
+    <testsuite name="Integration">
+      <directory>tests/integration/</directory>
+    </testsuite>
   </testsuites>
   <source>
     <include>
-      <directory suffix=".php">src</directory>
+      <directory suffix=".php">src/</directory>
     </include>
   </source>
   <coverage pathCoverage="true">
