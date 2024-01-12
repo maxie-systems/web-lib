@@ -39,7 +39,7 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="var/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
+      <text outputFile="/tmp/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
     </report>
   </coverage>
 </phpunit>
