@@ -141,5 +141,5 @@ class ComposerTestCommand extends Command
 
     private const BIN_DIR = './vendor/bin/';
     private const SRC_DIR = 'src';
-    private const UNIT_TEST_DIR = 'tests/unit';
+    private const UNIT_TEST_DIR = 'tests';
 }
