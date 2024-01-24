@@ -32,6 +32,7 @@
     },
     "scripts": {
         "test-all": [
+            "@composer validate --strict --with-dependencies",
             "@php ./vendor/bin/phpunit",
             "@code-coverage-report",
             "@test-psr12-all"
@@ -43,7 +44,7 @@
         ],
         "code-coverage-report": "MaxieSystems\\Dev\\ComposerCodeCoverageCommand",
         "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
-        "test-psr12-all": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/unit/",
+        "test-psr12-all": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/",
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
     }
 }

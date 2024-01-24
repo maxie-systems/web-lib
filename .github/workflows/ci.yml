@@ -23,11 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
       - name: Cache Composer dependencies
         uses: actions/cache@v3
         with:
-          path: /tmp/composer-cache
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
         uses: php-actions/composer@v6
@@ -42,9 +49,6 @@ jobs:
           command: validate
           args: --strict --with-dependencies
 
-      - name: Create temporary folder
-        run: mkdir var/
-
       - name: Run test suite
         uses: php-actions/composer@v6
         env:
@@ -53,14 +57,14 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: xdebug
           command: exec
-          only_args: phpunit
+          only_args: -- phpunit --coverage-text=coverage.txt
 
       - name: Code coverage report
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
           command: code-coverage-report
-          only_args: --ignore-threshold
+          only_args: --ignore-threshold --coverage-text=coverage.txt
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6

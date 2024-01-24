@@ -2,6 +2,11 @@
 
 namespace MaxieSystems\HTTP;
 
+#сделать наглядную схему именования файлов-классов на основе symfony.
+#  Отдельно обратить внимание на соответствие вендора/имени-проекта пространству имён проекта.
+#https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
+#https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers
+#https://datatracker.ietf.org/doc/html/rfc9110#name-field-order
 class Headers implements \Iterator, \Countable, \ArrayAccess, \JsonSerializable
 {
     public function __construct(iterable $headers)
@@ -55,7 +60,7 @@ class Headers implements \Iterator, \Countable, \ArrayAccess, \JsonSerializable
             if (isset($this->index[$name])) {
                 return $this->index[$name]->value;
             }
-            list($name, $_name, $lc_name) = Header::GetIndexNames($name);
+            list($name, $_name, $lc_name) = Header::GetIndexNames($name);//str_replace('-', '_', $lc_name)
             if (isset($this->headers[$lc_name])) {
                 return $this->headers[$lc_name]->value;
             } else {

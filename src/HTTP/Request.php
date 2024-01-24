@@ -30,6 +30,16 @@ namespace MaxieSystems\HTTP {
 
     class MultipleHeader implements IHeader, \Iterator, \Countable, \ArrayAccess
     {
+        final public static function IsMultiple(string $lc_name): bool
+        {
+            static $names = [
+                'set-cookie' => 1,
+                'Set-Cookie' => 1,
+            ];
+            return isset($names[$lc_name]);
+        }
+    
+    
         final public function __construct(Header $header, Header ...$headers)
         {
             $this->headers[] = $header;
