@@ -19,6 +19,7 @@ services:
       - ./src/:/usr/src/app/src/
       - ./src-dev/:/usr/src/app/src-dev/
       - ./tests/:/usr/src/app/tests/
+      - ./var/:/usr/src/app/var/
       - ./vendor/:/usr/src/app/vendor/
 configs:
   phpunit:

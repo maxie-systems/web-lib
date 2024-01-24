@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         defaultTestSuite="All"
          executionOrder="random"
          requireCoverageMetadata="true"
        failOnEmptyTestSuite="true"
@@ -20,19 +21,18 @@
        beStrictAboutOutputDuringTests="true"
        beStrictAboutChangesToGlobalState="true">
   <testsuites>
-    <testsuite name="all">
-      <directory>tests/integration</directory>
-      <directory>tests/unit</directory>
+    <testsuite name="All">
+      <directory>tests/</directory>
     </testsuite>
   </testsuites>
   <source>
     <include>
-      <directory suffix=".php">src</directory>
+      <directory suffix=".php">src/</directory>
     </include>
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="tests/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
+      <text outputFile="/tmp/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
     </report>
   </coverage>
 </phpunit>
