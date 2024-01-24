@@ -32,6 +32,12 @@ class ComposerCodeCoverageCommand extends Command
                 InputOption::VALUE_NONE,
                 'Do not fail the action when the minimum coverage was not met.'
             ),
+            new InputOption(
+                'coverage-text',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Code coverage report file.'
+            ),
         ]);
     }
 
@@ -41,18 +47,24 @@ class ComposerCodeCoverageCommand extends Command
         if ($min_coverage < 50 || $min_coverage > 100) {
             throw new InvalidOptionException('Minimum coverage must be between 50 and 100');
         }
-        $doc = new \DOMDocument();
-        $doc->load('./phpunit.xml');
-        $xpath = new \DOMXPath($doc);
-        $items = $xpath->query('coverage/report/text');
-        if (!$items->length) {
-            throw new RuntimeException('Unable to find report file name');
+        if ($file = $input->getOption('coverage-text')) {
+            $output->writeln('Got report file name from CLI');
+        } else {
+            $doc = new \DOMDocument();
+            $doc->load('./phpunit.xml');
+            $xpath = new \DOMXPath($doc);
+            $items = $xpath->query('coverage/report/text');
+            if (!$items->length) {
+                throw new RuntimeException('Unable to find report file name');
+            }
+            $output->writeln('Got report file name from phpunit.xml');
+            $file = $items[0]->getAttribute('outputFile');
         }
-        $below_threshold = false;
+        $text = file_get_contents($file);
         $output->writeln('Code Coverage Report Summary:');
         $output->writeln(" Minimum allowed coverage is $min_coverage%");
-        $text = file_get_contents($items[0]->getAttribute('outputFile'));
         $rx = '\\s+(?P<rate>[0-9]{1,3}(\\.[0-9]+)?)% \((?P<covered>[0-9]+)\/(?P<valid>[0-9]+)\)';
+        $below_threshold = false;
         foreach (['Classes', 'Methods', 'Paths', 'Branches', 'Lines'] as $label) {
             if (preg_match("/$label:$rx/", $text, $m)) {
                 $s = self::TAB . $this->alignLabelsAndNumbers($label, $m['rate'], $m['covered'], $m['valid']);
@@ -64,10 +76,7 @@ class ComposerCodeCoverageCommand extends Command
             }
         }
         $output->writeln('');
-        if ($input->getOption('ignore-threshold')) {
-            return self::SUCCESS;
-        }
-        return $below_threshold ? self::FAILURE : self::SUCCESS;
+        return $input->getOption('ignore-threshold') || !$below_threshold ? self::SUCCESS : self::FAILURE;
     }
 
     private function alignLabelsAndNumbers(string $label, string $percent, int $covered, int $valid): string
