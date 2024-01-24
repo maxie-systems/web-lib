@@ -50,14 +50,14 @@ jobs:
           php_version: ${{ env.PHP_VERSION }}
           php_extensions: xdebug
           command: exec
-          only_args: phpunit
+          only_args: phpunit --coverage-text=coverage.txt
 
       - name: Code coverage report
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
           command: code-coverage-report
-          only_args: --ignore-threshold
+          only_args: --ignore-threshold --coverage-text=coverage.txt
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6
