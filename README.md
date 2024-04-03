@@ -2,13 +2,13 @@
 The image is used to run tests.
 
 The simpliest method to build image and run container:
-```
+```Shell
 docker compose up -d
 ```
 
 Build an image:
-```
-docker build -t maxie-systems/web-lib-dev:latest .
+```Shell
+docker build -f .docker/Dockerfile -t maxie-systems/web-lib-dev:latest .
 ```
 
 Run a new container in background:

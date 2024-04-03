@@ -1,4 +1,4 @@
-#syntax=docker/dockerfile:1.4
+#syntax=docker/dockerfile:1.6
 
 ARG PHP_VERSION=8.2
 ARG COMPOSER_VERSION=2.6

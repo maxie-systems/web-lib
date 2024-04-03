@@ -4,25 +4,16 @@ services:
   php:
     build:
       context: .
+      dockerfile: .docker/Dockerfile
     configs:
-      - source: phpunit
-        target: /usr/src/app/phpunit.xml
       - source: xdebug
         target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    container_name: 'web-lib-dev'
+    container_name: ${COMPOSE_PROJECT_NAME}-php
     image: 'maxie-systems/web-lib-dev:latest'
     restart: unless-stopped
     tty: true
     volumes:
-      - ./composer.json:/usr/src/app/composer.json
-      - ./composer.lock:/usr/src/app/composer.lock
-      - ./src/:/usr/src/app/src/
-      - ./src-dev/:/usr/src/app/src-dev/
-      - ./tests/:/usr/src/app/tests/
-      - ./var/:/usr/src/app/var/
-      - ./vendor/:/usr/src/app/vendor/
+      - .:/usr/src/app/
 configs:
-  phpunit:
-    file: ./phpunit.xml
   xdebug:
-    file: ./xdebug.ini
+    file: .docker/xdebug.ini
