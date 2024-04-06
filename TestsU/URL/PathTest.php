@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL;
+namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\URL\Path;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 

@@ -15,36 +15,34 @@
         "php": "8.2.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10",
+        "phpunit/phpunit": "^11",
         "squizlabs/php_codesniffer": "^3",
-        "symfony/console": "^6.3",
-        "symfony/process": "^6.3"
+        "max-antipin/php-tests": "dev-master"
     },
     "autoload": {
         "psr-4": {
-            "MaxieSystems\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "MaxieSystems\\Dev\\": "src-dev/"
-        }
+            "MaxieSystems\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
     },
     "scripts": {
-        "test-all": [
+        "test:all": [
             "@composer validate --strict --with-dependencies",
             "@php ./vendor/bin/phpunit",
             "@code-coverage-report",
-            "@test-psr12-all"
+            "@test:psr12-all"
         ],
-        "test": "MaxieSystems\\Dev\\ComposerTestCommand",
-        "test-coverage-html": [
+        "test:unit": "@php ./vendor/bin/phpunit --coverage-text",
+        "test": "MaxAntipin\\Composer\\RunTestsCommand",
+        "test:coverage-report": [
             "Composer\\Config::disableProcessTimeout",
-            "@php ./vendor/bin/phpunit --coverage-html var/coverage-html"
+            "@php ./vendor/bin/phpunit --coverage-text --coverage-html var/coverage-html"
         ],
-        "code-coverage-report": "MaxieSystems\\Dev\\ComposerCodeCoverageCommand",
-        "test-psr12": "@php ./vendor/bin/phpcs --standard=PSR12",
-        "test-psr12-all": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=src/HTTP/ src/ src-dev/ tests/",
-        "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12"
+        "code-coverage-report": "MaxAntipin\\Composer\\CodeCoverageCommand",
+        "test:psr12": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/",
+        "test:psr12-all": "@test:psr12 .",
+        "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12 --ignore=vendor/,var/"
     }
 }

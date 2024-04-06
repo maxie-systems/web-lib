@@ -6,7 +6,7 @@ use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
 
 /**
  * @property-read string $name
- * @property-read string $name_lc
+ * @property-read string $nameLC
  * @property-read string|HeaderValueInterface $value
  */
 class Header
@@ -25,7 +25,7 @@ class Header
         if ('' === $header) {
             throw new EmptyHeaderNameException();
         }
-        $this->name_lc = strtolower($header);
+        $this->nameLC = strtolower($header);
         $this->name = ucwords($header, '-');
         $this->value = $value;
     }
@@ -42,6 +42,6 @@ class Header
     }
 
     public readonly string $name;
-    public readonly string $name_lc;
+    public readonly string $nameLC;
     private readonly string|HeaderValueInterface $value;
 }

@@ -71,4 +71,4 @@ jobs:
         with:
           php_version: ${{ env.PHP_VERSION }}
           command: run-script
-          only_args: test-psr12-all
+          only_args: test:psr12-all

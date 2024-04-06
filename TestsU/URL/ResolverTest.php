@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL;
+namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\URL\Resolver;
 use MaxieSystems\URL\Exception\InvalidHostException;
 use MaxieSystems\URL\Exception\InvalidSchemeException;
 use MaxieSystems\URLReadOnly;
@@ -42,7 +43,7 @@ final class ResolverTest extends TestCase
         $base_url = new URLReadOnly('//example.com/');
         $this->expectException(InvalidSchemeException::class);
         $this->expectExceptionMessageMatches('/\bscheme undefined\b/');
-        new Resolver($base_url);
+        echo new Resolver($base_url);
     }
 
     public function testNoHost(): void
@@ -50,7 +51,7 @@ final class ResolverTest extends TestCase
         $base_url = new URLReadOnly(['scheme' => 'https']);
         $this->expectException(InvalidHostException::class);
         $this->expectExceptionMessageMatches('/\bhost undefined\b/');
-        new Resolver($base_url);
+        echo new Resolver($base_url);
     }
 
     public static function getURLs(): array

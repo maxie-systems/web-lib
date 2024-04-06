@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems;
+namespace MaxieSystems\Tests;
 
+use MaxieSystems\ArrayAccessProxy;
+use MaxieSystems\URL;
+use MaxieSystems\URLReadOnly;
+use MaxieSystems\URLType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -125,8 +129,17 @@ final class URLTest extends TestCase
         $url = URL::parse('https://example.com/');
         $this->assertSame('https', $url->scheme);
         $this->assertSame('example.com', $url->host);
+        $this->assertSame('', $url->port);
         $this->assertSame('/', $url->path);
         $this->assertSame('', $url->query);
+        $this->assertSame('', $url->fragment);
+        $url = URL::parse('#');
+        $this->assertSame('', $url->scheme);
+        $this->assertSame('', $url->host);
+        $this->assertSame('', $url->port);
+        $this->assertSame('', $url->path);
+        $this->assertSame('', $url->query);
+        $this->assertSame('', $url->fragment);
     }
 
     public function testIsAbsolute(): void

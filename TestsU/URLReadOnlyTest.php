@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems;
+namespace MaxieSystems\Tests;
 
+use MaxieSystems\URL;
+use MaxieSystems\URLReadOnly;
+use MaxieSystems\URLType;
 use MaxieSystems\URL\Query;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

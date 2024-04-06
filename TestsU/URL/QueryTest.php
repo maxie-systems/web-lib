@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL;
+namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\URL\Query;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +21,22 @@ final class QueryTest extends TestCase
         $q = new Query($qarr);
         $this->assertCount(3, $q);
         $this->assertEquals(37, $q['age']);
+    }
+
+    public function testSet(): void
+    {
+        $q = new Query('');
+        $q->a = 10;
+        $this->assertTrue(isset($q->a));
+        $this->assertFalse(isset($q->b));
+        $this->assertSame('a=10', (string)$q);
+        $q->a = null;
+        unset($q->b);
+        $this->assertFalse(isset($q->a));
+        $this->assertFalse(isset($q->b));
+        unset($q['b']);
+        $this->assertFalse(isset($q->b));
+        $this->assertSame('', (string)$q);
     }
 
     public function testOffsetGet(): void
@@ -91,5 +108,16 @@ final class QueryTest extends TestCase
         $this->assertArrayNotHasKey('ddddd', $q);
         $this->assertArrayNotHasKey('order', $q);
         $this->assertCount(2, $q);
+    }
+
+    public function testJsonSerialize(): void
+    {
+        $q = new Query('range=0604202313022024&order=ASC&limit=100');
+        $json = json_encode($q);
+        $arr = json_decode($json, true);
+        foreach ($q as $k => $v) {
+            $this->assertArrayHasKey($k, $arr);
+            $this->assertSame($v, $arr[$k]);
+        }
     }
 }
