@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL;
+namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\URL\DomainName;
+use MaxieSystems\URL\Exception\InvalidDomainNameException;
+use MaxieSystems\URL\Host;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -14,32 +18,31 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(\MaxieSystems\Exception\Messages::class)]
 final class DomainNameTest extends TestCase
 {
-    public function testCompare(): void
+    public function testInvalid(): void
     {
-        $dn = new DomainName('www.example.com');
-        $res = $dn->compare('example.com', $label);
-        $this->assertSame(1, $res);
-        $this->assertSame('www', $label);
-        $dn = new DomainName('example.org');
-        $res = $dn->compare('www.example.org', $label);
-        $this->assertSame(-1, $res);
-        $this->assertSame('www', $label);
-        $dn = new DomainName('example.com');
-        $dn1 = 'example.com';
-        $res = $dn->compare($dn1, $label);
-        $this->assertSame(0, $res);
-        $this->assertSame('', $label);
-        $res = $dn->compare(new DomainName($dn1), $label);
-        $this->assertSame(0, $res);
-        $this->assertSame('', $label);
-        $dn = new DomainName('www.example.net');
-        $dn1 = 'static.example.co.uk';
-        $res = $dn->compare($dn1, $label);
-        $this->assertFalse($res);
-        $this->assertNull($label);
-        $res = $dn->compare(new DomainName($dn1), $label);
-        $this->assertFalse($res);
-        $this->assertNull($label);
+        $this->expectException(InvalidDomainNameException::class);
+        echo new DomainName('');
+    }
+
+    public static function compareDataProvider(): array
+    {
+        return [
+            ['www.example.com', 'example.com', 1, 'www'],
+            ['example.org', 'www.example.org', -1, 'www'],
+            ['example.com', 'example.com', 0, ''],
+            ['www.example.net', 'static.example.co.uk', false, null]
+        ];
+    }
+
+    #[DataProvider('compareDataProvider')]
+    public function testCompare(string $domain1, string $domain2, int|false $expected, ?string $expected_label): void
+    {
+        $dn = new DomainName($domain1);
+        foreach ([$domain2, new DomainName($domain2)] as $d) {
+            $res = $dn->compare($d, $label);
+            $this->assertSame($expected, $res);
+            $this->assertSame($expected_label, $label);
+        }
     }
 
     public function testToString(): void

@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL\Path;
+namespace MaxieSystems\Tests\URL\Path;
 
+use MaxieSystems\URL\Path\Segments;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -12,40 +14,44 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(\MaxieSystems\Exception\Messages::class)]
 final class SegmentsTest extends TestCase
 {
-    public function testSlice(): void
+    public static function sliceDataProvider(): array
     {
-        $path = new Segments('my/path/to/file2');
-        foreach (
-            [
-                [[2], 'to/file2'],
-                [[0, 2], 'my/path'],
-                [[2, -3], ''],
-                [[-2], 'to/file2'],
-                [[-3, -1], 'path/to'],
-            ] as list($args, $expected)
-        ) {
-            $new_path = $path->slice(...$args);
-            $this->assertInstanceOf(Segments::class, $new_path);
-            $this->assertSame($expected, (string)$new_path);
-        }
+        return [
+            [[2], 'to/file2'],
+            [[0, 2], 'my/path'],
+            [[2, -3], ''],
+            [[-2], 'to/file2'],
+            [[-3, -1], 'path/to'],
+        ];
     }
 
-    public function testSplit(): void
+    #[DataProvider('sliceDataProvider')]
+    public function testSlice(array $args, string $expected): void
+    {
+        $path = new Segments('my/path/to/file2');
+        $new_path = $path->slice(...$args);
+        $this->assertInstanceOf(Segments::class, $new_path);
+        $this->assertSame($expected, (string)$new_path);
+    }
+
+    public static function splitDataProvider(): array
+    {
+        return [
+            [[2], 'my/path', 'to/file'],
+            [[-3], 'my', 'path/to/file'],
+            [[-3, true], 'my', 'to/file'],
+        ];
+    }
+
+    #[DataProvider('splitDataProvider')]
+    public function testSplit(array $args, string $expected0, string $expected1): void
     {
         $path = new Segments('my/path/to/file');
-        foreach (
-            [
-                [[2], ['my/path', 'to/file']],
-                [[-3], ['my', 'path/to/file']],
-                [[-3, true], ['my', 'to/file']],
-            ] as list($args, $expected)
-        ) {
-            $new_path = $path->split(...$args);
-            $this->assertInstanceOf(Segments::class, $new_path[0]);
-            $this->assertInstanceOf(Segments::class, $new_path[1]);
-            $this->assertSame($expected[0], (string)$new_path[0]);
-            $this->assertSame($expected[1], (string)$new_path[1]);
-        }
+        $new_path = $path->split(...$args);
+        $this->assertInstanceOf(Segments::class, $new_path[0]);
+        $this->assertInstanceOf(Segments::class, $new_path[1]);
+        $this->assertSame($expected0, (string)$new_path[0]);
+        $this->assertSame($expected1, (string)$new_path[1]);
     }
 
     public function testFilterSegment(): void

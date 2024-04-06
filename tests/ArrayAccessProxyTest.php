@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems;
+namespace MaxieSystems\Tests;
 
+use MaxieSystems\ArrayAccessProxy;
+use MaxieSystems\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;

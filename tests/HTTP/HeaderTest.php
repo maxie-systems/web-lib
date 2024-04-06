@@ -2,36 +2,45 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\HTTP;
+namespace MaxieSystems\Tests\HTTP;
 
 use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
+use MaxieSystems\HTTP\Header;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Header::class)]
 final class HeaderTest extends TestCase
 {
-    public function testConstruct(): void
+    public static function constructDataProvider(): array
     {
-        foreach (
-            [
-                [['Expires: Thu, 05 Oct 2023 18:01:30 GMT'], 'Expires'],
-                [['Content-Type', 'text/html; charset=UTF-8'], 'Content-Type'],
-                [['content-type: application/x-javascript'], 'Content-Type'],
-                [['ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"'], 'ETag'],
-            ] as list($args, $name)
-        ) {
-            $header = new Header(...$args);
-            $this->assertSame($name, $header->name);
-            $this->assertSame(strtolower($name), $header->name_lc);
-        }
+        return [
+            [['Expires: Thu, 05 Oct 2023 18:01:30 GMT'], 'Expires'],
+            [['Content-Type', 'text/html; charset=UTF-8'], 'Content-Type'],
+            [['content-type: application/x-javascript'], 'Content-Type'],
+            [['ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"'], 'ETag'],
+        ];
+    }
+
+    #[DataProvider('constructDataProvider')]
+    public function testConstruct(array $args, string $name): void
+    {
+        $header = new Header(...$args);
+        $this->assertSame($name, $header->name);
+        $this->assertSame(strtolower($name), $header->nameLC);
     }
 
     public function testEmptyHeaderName(): void
     {
         $this->expectException(EmptyHeaderNameException::class);
-        $header = new Header('HTTP/1.1 404 Not Found');
-        $header->value;
+        echo new Header('HTTP/1.1 404 Not Found');
+    }
+
+    public function testEmptyHeader(): void
+    {
+        $this->expectException(EmptyHeaderNameException::class);
+        echo new Header('', '');
     }
 
     public function testToString(): void

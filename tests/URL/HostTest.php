@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
-namespace MaxieSystems\URL;
+namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\URL\DomainName;
+use MaxieSystems\URL\Exception\InvalidHostException;
+use MaxieSystems\URL\Host;
+use MaxieSystems\URL\IPAddress;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -35,6 +39,7 @@ final class HostTest extends TestCase
         return [
             'IPv6 + port' => ['[FDDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80'],
             'Domain name' => ['example.com'],
+            'Empty value' => [''],
         ];
     }
 
@@ -112,7 +117,7 @@ final class HostTest extends TestCase
 
     public function testCreateFail(): void
     {
-        $this->expectException(Exception\InvalidHostException::class);
+        $this->expectException(InvalidHostException::class);
         Host::create('[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80');
     }
 }
