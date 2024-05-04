@@ -53,6 +53,9 @@
         "ci:lint": [
             "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/ --no-cache --parallel=1 --report-full --report-checkstyle=./var/phpcs-report.xml -- ."
         ],
+        "post-install-cmd": [
+            "mkdir -p ./var/"
+        ],
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12 --ignore=vendor/,var/"
     },
     "scripts-descriptions": {
