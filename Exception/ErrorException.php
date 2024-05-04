@@ -1,6 +1,6 @@
 <?php
 
-namespace MaxieSystems;
+namespace MaxieSystems\Exception;
 
 class ErrorException extends \ErrorException
 {
