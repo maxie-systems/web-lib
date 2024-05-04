@@ -87,12 +87,21 @@ jobs:
           command: exec
           only_args: -- phpunit --no-coverage
 
-      - name: Code coverage report
+      - name: Upload coverage results to Coveralls
+        if: ${{ success() }}
+        uses: coverallsapp/github-action@v2
+        with:
+          format: clover
+          file: var/clover.xml
+          flag-name: php-${{ matrix.php }}
+          parallel: true
+
+      - name: Code coverage summary
         uses: php-actions/composer@v6
         with:
           php_version: ${{ matrix.php }}
           command: code-coverage-report
-          only_args: --ignore-threshold --coverage-text=coverage.txt
+          only_args: --ignore-threshold --coverage-clover var/clover.xml
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6
