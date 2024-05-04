@@ -26,26 +26,15 @@ jobs:
     runs-on: ubuntu-20.04
 
     strategy:
-      # Keys:
-      # - custom_ini: Whether to run with specific custom ini settings to hit very specific
-      #   code conditions.
       matrix:
         php: ['8.2', '8.3']
-#        custom_ini: [false]
+        coverage: [false]
 
-#        include:
-          # Skip test runs on builds which are also run for in the coverage job.
-          # Note: the tests on PHP 7.2 will still be run as the coverage build is uses custom_ini for that version.
-#          - php: '8.3'
-#            skip_tests: true
+        include:
+          - php: '8.2'
+            coverage: true
 
-          # Extra builds running only the unit tests with different PHP ini settings.
-#          - php: '5.5'
-#            custom_ini: true
-#          - php: '7.0'
-#            custom_ini: true
-
-    name: "PHP: ${{ matrix.php }}"
+    name: "PHP: ${{ matrix.php }} ${{ matrix.coverage && ' with code coverage' || '' }}"
 
     continue-on-error: ${{ matrix.php == '8.2' }}
 
@@ -79,7 +68,8 @@ jobs:
           command: validate
           args: --strict --with-dependencies
 
-      - name: Run test suite
+      - name: Run tests with code coverage
+        if: ${{ matrix.coverage == true }}
         uses: php-actions/composer@v6
         env:
           XDEBUG_MODE: coverage
@@ -87,7 +77,15 @@ jobs:
           php_version: ${{ matrix.php }}
           php_extensions: xdebug
           command: exec
-          only_args: -- phpunit --coverage-text=coverage.txt
+          only_args: -- phpunit
+
+      - name: Run tests without coverage
+        if: ${{ matrix.coverage == false }}
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php }}
+          command: exec
+          only_args: -- phpunit --no-coverage
 
       - name: Code coverage report
         uses: php-actions/composer@v6
@@ -101,4 +99,4 @@ jobs:
         with:
           php_version: ${{ matrix.php }}
           command: run-script
-          only_args: test:cs-all
+          only_args: ci:lint

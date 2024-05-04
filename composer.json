@@ -36,11 +36,11 @@
             "@code-coverage-report",
             "@test:cs-all"
         ],
-        "test:unit": "@php ./vendor/bin/phpunit --coverage-text",
+        "test:unit": "@php ./vendor/bin/phpunit --no-coverage --coverage-text",
         "test": "MaxAntipin\\Composer\\RunTestsCommand",
-        "test:coverage-report": [
+        "test:coverage": [
             "Composer\\Config::disableProcessTimeout",
-            "@php ./vendor/bin/phpunit --coverage-text --coverage-html var/coverage-html"
+            "@php ./vendor/bin/phpunit --no-coverage --coverage-text --coverage-html var/coverage-html"
         ],
         "code-coverage-report": "MaxAntipin\\Composer\\CodeCoverageCommand",
         "test:cs": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/",
@@ -49,6 +49,9 @@
         "test:lint-all": [
             "@test:cs-all",
             "@test:stan-all"
+        ],
+        "ci:lint": [
+            "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/ --no-cache --parallel=1 --report-full --report-checkstyle=./var/phpcs-report.xml -- ."
         ],
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12 --ignore=vendor/,var/"
     },
