@@ -54,6 +54,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Create temporary directory
+        run: mkdir -pv ./var/
+
       - name: Install Composer dependencies
         uses: php-actions/composer@v6
         with:
