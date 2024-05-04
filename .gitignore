@@ -3,3 +3,5 @@
 /var/
 /vendor/
 composer.lock
+phpstan.neon
+phpunit.xml
