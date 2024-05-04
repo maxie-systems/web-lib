@@ -19,7 +19,8 @@
         "squizlabs/php_codesniffer": "^3",
         "max-antipin/php-code-sniffs": "^1.0",
         "max-antipin/php-tests": "dev-master",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^1.10",
+        "staabm/annotate-pull-request-from-checkstyle": "*"
     },
     "autoload": {
         "psr-4": {
@@ -52,9 +53,6 @@
         ],
         "ci:lint": [
             "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/ --no-cache --parallel=1 --report-full --report-checkstyle=./var/phpcs-report.xml -- ."
-        ],
-        "post-update-cmd": [
-            "mkdir -pv ./var/"
         ],
         "fix-psr12": "@php ./vendor/bin/phpcbf --standard=PSR12 --ignore=vendor/,var/"
     },
