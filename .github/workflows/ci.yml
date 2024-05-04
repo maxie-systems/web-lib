@@ -31,7 +31,7 @@ jobs:
           - php: '8.2'
             coverage: true
 
-    name: "PHP: ${{ matrix.php }} ${{ matrix.coverage && ' with code coverage' || '' }}"
+    name: "PHP ${{ matrix.php }} ${{ matrix.coverage && ' with code coverage' || '' }}"
 
     continue-on-error: ${{ matrix.php == '8.2' }}
 
@@ -106,6 +106,22 @@ jobs:
           php_version: ${{ matrix.php }}
           command: run-script
           only_args: ci:lint
+
+      - name: Upload the code coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: ./var/clover.xml
+          if-no-files-found: error
+          retention-days: 28
+
+      - name: Upload the PHPCS report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpcs-report
+          path: ./var/phpcs-report.xml
+          if-no-files-found: error
+          retention-days: 28
 
   coveralls-finish:
     needs: run-tests
