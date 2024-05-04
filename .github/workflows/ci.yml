@@ -13,8 +13,8 @@ on:
 permissions:
   contents: read
 
-env:
-  PHP_VERSION: 8.2
+#env:
+#  PHP_VERSION: 8.2
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,6 +24,30 @@ jobs:
   run-tests:
 
     runs-on: ubuntu-20.04
+
+    strategy:
+      # Keys:
+      # - custom_ini: Whether to run with specific custom ini settings to hit very specific
+      #   code conditions.
+      matrix:
+        php: ['8.2', '8.3', '8.4']
+#        custom_ini: [false]
+
+#        include:
+          # Skip test runs on builds which are also run for in the coverage job.
+          # Note: the tests on PHP 7.2 will still be run as the coverage build is uses custom_ini for that version.
+#          - php: '8.3'
+#            skip_tests: true
+
+          # Extra builds running only the unit tests with different PHP ini settings.
+#          - php: '5.5'
+#            custom_ini: true
+#          - php: '7.0'
+#            custom_ini: true
+
+    name: "PHP: ${{ matrix.php }}"
+
+    continue-on-error: ${{ matrix.php == '8.2' }}
 
     steps:
       - name: Checkout
@@ -45,13 +69,13 @@ jobs:
       - name: Install Composer dependencies
         uses: php-actions/composer@v6
         with:
-          php_version: ${{ env.PHP_VERSION }}
+          php_version: ${{ matrix.php }}
           args: --classmap-authoritative --no-progress --audit
 
       - name: Validate composer.json and composer.lock
         uses: php-actions/composer@v6
         with:
-          php_version: ${{ env.PHP_VERSION }}
+          php_version: ${{ matrix.php }}
           command: validate
           args: --strict --with-dependencies
 
@@ -60,7 +84,7 @@ jobs:
         env:
           XDEBUG_MODE: coverage
         with:
-          php_version: ${{ env.PHP_VERSION }}
+          php_version: ${{ matrix.php }}
           php_extensions: xdebug
           command: exec
           only_args: -- phpunit --coverage-text=coverage.txt
@@ -68,13 +92,13 @@ jobs:
       - name: Code coverage report
         uses: php-actions/composer@v6
         with:
-          php_version: ${{ env.PHP_VERSION }}
+          php_version: ${{ matrix.php }}
           command: code-coverage-report
           only_args: --ignore-threshold --coverage-text=coverage.txt
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6
         with:
-          php_version: ${{ env.PHP_VERSION }}
+          php_version: ${{ matrix.php }}
           command: run-script
           only_args: test:cs-all
