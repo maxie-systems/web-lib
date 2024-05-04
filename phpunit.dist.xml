@@ -9,7 +9,7 @@
        failOnRisky="true"
        failOnDeprecation="true"
        failOnNotice="true"
-       failOnSkipped="true"
+       failOnSkipped="false"
        failOnIncomplete="true"
          displayDetailsOnIncompleteTests="true"
          displayDetailsOnSkippedTests="true"

@@ -10,6 +10,8 @@ use MaxieSystems\URLType;
 use MaxieSystems\URL\Query;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhp;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -29,10 +31,20 @@ final class URLReadOnlyTest extends TestCase
         $this->assertSame('', $url->query);
     }
 
-    public function testClone(): void
+    #[TestDox('PHP < 8.3: Fatal error: Cannot modify readonly property')]
+    #[RequiresPhp('8.2.*')]
+    public function testCloneFail(): void
     {
         $url = new URLReadOnly('https://example.net/');
         $this->expectException(\Error::class);
+        $this->assertObjectHasProperty('url', clone $url);
+    }
+
+    #[TestDox('PHP 8.3: Deep-cloning of readonly properties works fine')]
+    #[RequiresPhp('>= 8.3.0')]
+    public function testCloneSuccess(): void
+    {
+        $url = new URLReadOnly('https://example.co.uk/');
         $this->assertObjectHasProperty('url', clone $url);
     }
 
