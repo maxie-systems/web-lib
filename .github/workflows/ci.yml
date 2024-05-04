@@ -13,9 +13,6 @@ on:
 permissions:
   contents: read
 
-#env:
-#  PHP_VERSION: 8.2
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -109,3 +106,16 @@ jobs:
           php_version: ${{ matrix.php }}
           command: run-script
           only_args: ci:lint
+
+  coveralls-finish:
+    needs: run-tests
+    if: always() && needs.run-tests.result == 'success'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true
+          carryforward: "php-8.2"
