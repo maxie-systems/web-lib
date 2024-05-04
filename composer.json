@@ -19,8 +19,7 @@
         "squizlabs/php_codesniffer": "^3",
         "max-antipin/php-code-sniffs": "^1.0",
         "max-antipin/php-tests": "dev-master",
-        "phpstan/phpstan": "^1.10",
-        "staabm/annotate-pull-request-from-checkstyle": "*"
+        "phpstan/phpstan": "^1.10"
     },
     "autoload": {
         "psr-4": {
