@@ -3,6 +3,8 @@ name: Run tests (PHPUnit & phpcs)
 on:
   push:
     branches: [ "main", "dev" ]
+    paths-ignore:
+      - '**.md'
   pull_request:
     types: [ opened, reopened, edited, ready_for_review ]
     branches: [ "main", "dev" ]
@@ -14,6 +16,10 @@ permissions:
 env:
   PHP_VERSION: 8.2
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-tests:
 
@@ -21,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -40,7 +46,7 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: ${{ env.PHP_VERSION }}
-          args: --classmap-authoritative --no-progress
+          args: --classmap-authoritative --no-progress --audit
 
       - name: Validate composer.json and composer.lock
         uses: php-actions/composer@v6
