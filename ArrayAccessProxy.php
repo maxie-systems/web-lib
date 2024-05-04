@@ -23,7 +23,7 @@ final readonly class ArrayAccessProxy implements \ArrayAccess
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($this->readonly) {
-            throw new \Error(Exception\Messages::readonlyProperty($this, $offset));
+            throw new \Error(EMessages::readonlyProperty($this, $offset));
         }
         $this->subject->$offset = $value;
     }
@@ -31,7 +31,7 @@ final readonly class ArrayAccessProxy implements \ArrayAccess
     public function offsetUnset(mixed $offset): void
     {
         if ($this->readonly) {
-            throw new \Error(Exception\Messages::readonlyProperty($this, $offset));
+            throw new \Error(EMessages::readonlyProperty($this, $offset));
         }
         unset($this->subject->$offset);
     }

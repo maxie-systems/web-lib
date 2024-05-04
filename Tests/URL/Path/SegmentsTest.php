@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaxieSystems\Tests\URL\Path;
 
+use MaxieSystems\EMessages;
 use MaxieSystems\URL\Path\Segments;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -11,7 +12,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Segments::class)]
-#[UsesClass(\MaxieSystems\Exception\Messages::class)]
+#[UsesClass(EMessages::class)]
 final class SegmentsTest extends TestCase
 {
     public static function sliceDataProvider(): array

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaxieSystems\Tests\URL;
 
+use MaxieSystems\EMessages;
 use MaxieSystems\URL\DomainName;
 use MaxieSystems\URL\Exception\InvalidDomainNameException;
 use MaxieSystems\URL\Host;
@@ -15,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DomainName::class)]
 #[UsesClass(DomainName\Labels::class)]
 #[UsesClass(Host::class)]
-#[UsesClass(\MaxieSystems\Exception\Messages::class)]
+#[UsesClass(EMessages::class)]
 final class DomainNameTest extends TestCase
 {
     public function testInvalid(): void

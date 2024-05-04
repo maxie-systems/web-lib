@@ -2,7 +2,7 @@
 
 namespace MaxieSystems\URL;
 
-use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\EMessages;
 
 /**
  * @property-read string $slug
@@ -99,17 +99,17 @@ class Path
             return '' === "$s" ? '' : pathinfo($s, PATHINFO_EXTENSION);
         }
         // elseif('dirname' === $name) return '\\' === ($v = dirname($this->value)) ? '/' : $v;
-        throw new \Error(EMsg::undefinedProperty($this, $name));
+        throw new \Error(EMessages::undefinedProperty($this, $name));
     }*/
 
     final public function __set($name, $value): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function __unset($name): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function __toString()

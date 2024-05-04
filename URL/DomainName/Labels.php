@@ -2,7 +2,7 @@
 
 namespace MaxieSystems\URL\DomainName;
 
-use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\EMessages;
 
 class Labels implements \ArrayAccess, \Countable
 {
@@ -26,17 +26,17 @@ class Labels implements \ArrayAccess, \Countable
             $j = $this->convertOffset($i);
             return $this->labels[$j] ?? null;
         }
-        throw new \TypeError(EMsg::illegalOffsetType($i));
+        throw new \TypeError(EMessages::illegalOffsetType($i));
     }
 
     final public function offsetSet($i, $v): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function offsetUnset($i): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function toArray(): array

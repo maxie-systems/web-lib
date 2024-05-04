@@ -2,7 +2,7 @@
 
 namespace MaxieSystems;
 
-use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\URL\Exception\InvalidURLException;
 use MaxieSystems\URL\PathType;
 
 /**
@@ -258,7 +258,7 @@ class URL implements URLInterface
             } else {
                 $u = parse_url($source);
                 if (!$u) {
-                    throw new Exception\URL\InvalidURLException();
+                    throw new InvalidURLException();
                 }
                 /** @var array $source */
                 $source = $u;
@@ -288,9 +288,9 @@ class URL implements URLInterface
                     return false;
                 }
             }
-        } elseif (isset(self::$component_group[$group])) {
+        } elseif (isset(self::$componentGroup[$group])) {
             foreach ($this as $k => $v) {
-                if (!isset(self::$component_group[$group][$k])) {
+                if (!isset(self::$componentGroup[$group][$k])) {
                     continue;
                 } elseif ('' !== (string)$v) {
                     return false;
@@ -314,8 +314,8 @@ class URL implements URLInterface
             foreach ($components as $name) {
                 if (self::isComponentName($name)) {
                     $copy($source_url, $name);
-                } elseif (isset(self::$component_group[$name])) {
-                    foreach (self::$component_group[$name] as $n) {
+                } elseif (isset(self::$componentGroup[$name])) {
+                    foreach (self::$componentGroup[$name] as $n) {
                         $copy($source_url, $n);
                     }
                 } else {
@@ -359,7 +359,7 @@ class URL implements URLInterface
         if (self::isComponentName($name)) {
             return $this->data[$name];
         }
-        throw new \Error(EMsg::undefinedProperty($this, $name));
+        throw new \Error(EMessages::undefinedProperty($this, $name));
     }
 
     final public function __unset($name): void
@@ -372,7 +372,7 @@ class URL implements URLInterface
         if (self::isComponentName($name)) {
             $this->data[$name] = $this->filterComponent($name, $value) ?? '';
         } else {
-            throw new \Error(EMsg::undefinedProperty($this, $name));
+            throw new \Error(EMessages::undefinedProperty($this, $name));
         }
     }
 
@@ -506,7 +506,7 @@ class URL implements URLInterface
         'path' => ['type' => 'mixed'], 'query' => ['type' => 'mixed'], 'fragment' => ['type' => 'string']
     ];
     # <authority> - https://datatracker.ietf.org/doc/html/rfc3986#section-3.2
-    private static array $component_group = [
+    private static array $componentGroup = [
         'authority' => ['host' => 'host', 'port' => 'port', 'user' => 'user', 'pass' => 'pass'],
         'origin' => ['scheme' => 'scheme', 'host' => 'host', 'port' => 'port'],
     ];

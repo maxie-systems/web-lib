@@ -2,8 +2,6 @@
 
 namespace MaxieSystems;
 
-use MaxieSystems\Exception\Messages as EMsg;
-
 /**
  * Parse URLs
  *
@@ -30,6 +28,7 @@ class URLReadOnly implements URLInterface
 
     protected function onCreate(URL $url): void
     {
+        # This method is a hook which can be redefined in the subclasses.
     }
 
     final public function isEmpty(string $group = null): bool
@@ -49,12 +48,12 @@ class URLReadOnly implements URLInterface
 
     final public function __unset($name): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function __set($name, $value): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     public function __isset($name): bool

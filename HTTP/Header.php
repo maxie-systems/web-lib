@@ -2,7 +2,7 @@
 
 namespace MaxieSystems\HTTP;
 
-use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
+use MaxieSystems\HTTP\Exception\EmptyHeaderNameException;
 
 /**
  * @property-read string $name
