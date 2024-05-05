@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MaxieSystems\Tests\HTTP;
 
-use MaxieSystems\Exception\HTTP\EmptyHeaderNameException;
+use MaxieSystems\HTTP\Exception\EmptyHeaderNameException;
 use MaxieSystems\HTTP\Header;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

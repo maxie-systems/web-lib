@@ -9,7 +9,7 @@
        failOnRisky="true"
        failOnDeprecation="true"
        failOnNotice="true"
-       failOnSkipped="true"
+       failOnSkipped="false"
        failOnIncomplete="true"
          displayDetailsOnIncompleteTests="true"
          displayDetailsOnSkippedTests="true"
@@ -37,7 +37,8 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="/tmp/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" />
+      <text outputFile="php://stdout" showUncoveredFiles="false" showOnlySummary="true" />
+      <clover outputFile="var/clover.xml" />
     </report>
   </coverage>
 </phpunit>

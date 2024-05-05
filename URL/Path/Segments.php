@@ -2,7 +2,7 @@
 
 namespace MaxieSystems\URL\Path;
 
-use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\EMessages;
 
 class Segments implements \Countable, \ArrayAccess
 {
@@ -150,12 +150,12 @@ class Segments implements \Countable, \ArrayAccess
 
     final public function offsetUnset($k): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function offsetSet($k, $v): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function __toString()

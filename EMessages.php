@@ -1,8 +1,8 @@
 <?php
 
-namespace MaxieSystems\Exception;
+namespace MaxieSystems;
 
-abstract class Messages
+abstract class EMessages
 {
     /**
      * Use with \Error

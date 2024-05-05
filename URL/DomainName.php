@@ -2,7 +2,7 @@
 
 namespace MaxieSystems\URL;
 
-use MaxieSystems\Exception\Messages as EMsg;
+use MaxieSystems\EMessages;
 
 class DomainName extends Host implements \ArrayAccess, \Countable
 {
@@ -65,12 +65,12 @@ class DomainName extends Host implements \ArrayAccess, \Countable
 
     final public function offsetSet($n, $v): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     final public function offsetUnset($n): void
     {
-        throw new \Error(EMsg::readonlyObject($this));
+        throw new \Error(EMessages::readonlyObject($this));
     }
 
     #[\ReturnTypeWillChange]

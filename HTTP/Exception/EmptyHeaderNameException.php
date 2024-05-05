@@ -1,6 +1,6 @@
 <?php
 
-namespace MaxieSystems\Exception\HTTP;
+namespace MaxieSystems\HTTP\Exception;
 
 class EmptyHeaderNameException extends \InvalidArgumentException
 {

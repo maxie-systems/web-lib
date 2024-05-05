@@ -28,7 +28,7 @@ composer install
 
 From now on you can run all tests using this command inside the Container:
 ```
-composer test-all
+composer test:all
 ```
 
 Or you can use a new container every time you want to run tests:
@@ -38,7 +38,7 @@ docker run -it --rm -v .:/usr/src/app web-lib-dev composer test-all
 
 Run only unit tests for all test cases and generate HTML-report:
 ```
-composer test-coverage-html
+composer test:coverage-report
 ```
 
 Run only unit tests for certain files or directories (filename\dirname is required):
@@ -48,7 +48,7 @@ composer test --unit <FileName-or-DirName>
 
 Check your code against the PSR-12 coding standard:
 ```
-composer test-psr12 <src/FileName.php>
+composer test:cs <src/FileName.php>
 ```
 
 Fix your code:
