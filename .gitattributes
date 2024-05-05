@@ -6,8 +6,6 @@
 /compose.yaml      export-ignore
 /phpstan.dist.neon export-ignore
 /phpunit.dist.xml  export-ignore
-# ---
-/composer.json     export-subst
-# ---
+
 *.sh        text eol=lf
 .docker/*   text eol=lf
