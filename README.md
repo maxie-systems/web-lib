@@ -1,4 +1,8 @@
-# Docker Image
+[![Coverage Status](https://coveralls.io/repos/github/maxie-systems/web-lib/badge.svg?branch=main)](https://coveralls.io/github/maxie-systems/web-lib?branch=main)
+
+# Development
+
+## Docker Image
 The image is used to run tests.
 
 The simpliest method to build image and run container:
