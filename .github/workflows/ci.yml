@@ -2,12 +2,14 @@ name: Run tests (PHPUnit & phpcs)
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
     paths-ignore:
       - '**.md'
   pull_request:
     types: [ opened, reopened, edited, ready_for_review ]
     branches: [ "main", "dev" ]
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
 
 permissions:
