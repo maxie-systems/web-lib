@@ -40,7 +40,7 @@
         "test": "MaxAntipin\\Composer\\RunTestsCommand",
         "test:coverage": [
             "Composer\\Config::disableProcessTimeout",
-            "@php ./vendor/bin/phpunit --no-coverage --coverage-text --coverage-html var/coverage-html"
+            "@php ./vendor/bin/phpunit --no-coverage --coverage-html var/coverage-html"
         ],
         "code-coverage-report": "MaxAntipin\\Composer\\CodeCoverageCommand",
         "test:cs": "@php ./vendor/bin/phpcs --standard=PSR12 --ignore=vendor/,var/",
