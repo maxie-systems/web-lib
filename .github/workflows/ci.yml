@@ -113,6 +113,14 @@ jobs:
           command: run-script
           only_args: ci:lint
 
+      - name: Upload the reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-php-${{ matrix.php }}
+          path: ./var/
+          if-no-files-found: error
+          retention-days: 28
+  
       - name: Upload the code coverage report
         if: ${{ matrix.coverage == true }}
         uses: actions/upload-artifact@v4
