@@ -129,7 +129,7 @@ jobs:
 
   coveralls-finish:
     needs: run-tests
-    if: !cancelled() && needs.run-tests.result == 'success'
+    if: ${{ !cancelled() && needs.run-tests.result == 'success' }}
 
     runs-on: ubuntu-latest
 
