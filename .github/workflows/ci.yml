@@ -20,7 +20,7 @@ concurrency:
 jobs:
   run-tests:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -35,7 +35,7 @@ jobs:
 
     name: "PHP ${{ matrix.php }} ${{ matrix.coverage && ' with code coverage' || '' }}"
 
-    continue-on-error: ${{ matrix.php == '8.2' }}
+    continue-on-error: ${{ matrix.coverage == true }}
 
     steps:
       - name: Checkout
@@ -90,11 +90,11 @@ jobs:
           only_args: -- phpunit --no-coverage
 
       - name: Upload coverage results to Coveralls
-        if: ${{ success() && matrix.coverage == true }}
+        if: ${{ matrix.coverage == true }}
         uses: coverallsapp/github-action@v2
         with:
           format: clover
-          file: var/clover.xml
+          file: ./var/clover.xml
           flag-name: php-${{ matrix.php }}
           parallel: true
 
@@ -104,7 +104,7 @@ jobs:
         with:
           php_version: ${{ matrix.php }}
           command: code-coverage-report
-          only_args: --ignore-threshold --coverage-clover var/clover.xml
+          only_args: --ignore-threshold --coverage-clover ./var/clover.xml
 
       - name: Check code against the PSR-12 coding standard
         uses: php-actions/composer@v6
@@ -113,6 +113,12 @@ jobs:
           command: run-script
           only_args: ci:lint
 
+      - name: Show PHPCS results in PR
+        uses: staabm/annotate-pull-request-from-checkstyle-action@v1
+        with:
+          files: ./var/phpcs-report.xml
+          notices-as-warnings: true
+
       - name: Upload the reports
         uses: actions/upload-artifact@v4
         with:
@@ -120,27 +126,10 @@ jobs:
           path: ./var/
           if-no-files-found: error
           retention-days: 28
-  
-      - name: Upload the code coverage report
-        if: ${{ matrix.coverage == true }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report-php-${{ matrix.php }}
-          path: ./var/clover.xml
-          if-no-files-found: error
-          retention-days: 28
-
-      - name: Upload the PHPCS report
-        uses: actions/upload-artifact@v4
-        with:
-          name: phpcs-report-php-${{ matrix.php }}
-          path: ./var/phpcs-report.xml
-          if-no-files-found: error
-          retention-days: 28
 
   coveralls-finish:
     needs: run-tests
-    if: always() && needs.run-tests.result == 'success'
+    if: !cancelled() && needs.run-tests.result == 'success'
 
     runs-on: ubuntu-latest
 
