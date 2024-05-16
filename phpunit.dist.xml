@@ -25,7 +25,12 @@
       <directory>./Tests/</directory>
     </testsuite>
   </testsuites>
-  <source>
+  <source ignoreSuppressionOfPhpDeprecations="true"
+          ignoreSuppressionOfErrors="true"
+          ignoreSuppressionOfNotices="true"
+          ignoreSuppressionOfPhpNotices="true"
+          ignoreSuppressionOfWarnings="true"
+          ignoreSuppressionOfPhpWarnings="true">
     <include>
       <directory suffix=".php">./</directory>
     </include>
@@ -37,7 +42,6 @@
   </source>
   <coverage pathCoverage="true">
     <report>
-      <text outputFile="php://stdout" showUncoveredFiles="false" showOnlySummary="true" />
       <clover outputFile="var/clover.xml" />
     </report>
   </coverage>
