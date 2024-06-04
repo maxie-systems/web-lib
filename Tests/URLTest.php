@@ -19,70 +19,71 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(URL\Query::class)]
 final class URLTest extends TestCase
 {
-    public function testBuild(): void
+    #[DataProvider('dataProviderBuild')]
+    public function testBuild($url, string $expected): void
     {
-        $urls = [
-            [
-                'str' => '',
-                'arr' => [
-                    'scheme' => '',
-                    'host' => '',
-                    'port' => '',
-                    'user' => '',
-                    'pass' => '',
-                    'path' => '',
-                    'query' => '',
-                    'fragment' => ''
-                ],
-            ],
-            [
-                'str' => 'https://example.com/#nav',
-                'arr' => [
-                    'scheme' => 'https',
-                    'host' => 'example.com',
-                    'port' => '',
-                    'user' => '',
-                    'pass' => '',
-                    'path' => '/',
-                    'query' => '',
-                    'fragment' => 'nav'
-                ],
-            ],
-            [
-                'str' => 'https://max-power:1234abcd@92.16.33.40:443?id=5',
-                'arr' => [
-                    'scheme' => 'https',
-                    'host' => '92.16.33.40',
-                    'port' => '443',
-                    'user' => 'max-power',
-                    'pass' => '1234abcd',
-                    'path' => '',
-                    'query' => 'id=5',
-                    'fragment' => ''
-                ],
-            ],
-        ];
-        foreach ($urls as $data) {
-            $url = new \stdClass();
-            foreach ($data['arr'] as $k => $v) {
-                $url->$k = $v;
-            }
-            $this->assertSame($data['str'], URL::build($url));
-        }
+        $this->assertSame($expected, URL::build($url));
     }
 
-    public function testEncode(): void
+    public static function dataProviderBuild(): \Generator
     {
-        $string = 'abcd1234';
-        $this->assertSame($string, URL::encode($string));
+        yield 'Empty object' => [
+            (object)[
+                'scheme' => '',
+                'host' => '',
+                'port' => '',
+                'user' => '',
+                'pass' => '',
+                'path' => '',
+                'query' => '',
+                'fragment' => ''
+            ],
+            '',
+        ];
+        yield 'URL object with fragment' => [
+            (object)[
+                'scheme' => 'https',
+                'host' => 'example.com',
+                'port' => '',
+                'user' => '',
+                'pass' => '',
+                'path' => '/',
+                'query' => '',
+                'fragment' => 'nav'
+            ],
+            'https://example.com/#nav',
+        ];
+        yield 'URL object' => [
+            [
+                'scheme' => 'https',
+                'host' => '92.16.33.40',
+                'port' => '443',
+                'user' => 'max-power',
+                'pass' => '1234abcd',
+                'path' => '',
+                'query' => 'id=5',
+                'fragment' => ''
+            ],
+            'https://max-power:1234abcd@92.16.33.40:443?id=5',
+        ];
+    }
 
-        $string = 'user@example.com';
-        $this->assertSame($string, URL::encode($string));
+    #[DataProvider('dataProviderEncode')]
+    public function testEncode(string $expected, string $value): void
+    {
+        $this->assertSame($expected, URL::encode($value));
+    }
 
-        $this->assertSame(
+    public static function dataProviderEncode(): \Generator
+    {
+        $v = 'abcd1234';
+        yield [$v, $v];
+        $v = 'user@example.com';
+        yield [$v, $v];
+        yield [
             'https://test.com/?name[]=%D0%9C%D0%B0%D0%BA%D1%81%20%D0%90%D0%BD%D1%82%D0%B8%D0%BF%D0%B8%D0%BD',
-            URL::encode('https://test.com/?name[]=Макс Антипин')
-        );
+            'https://test.com/?name[]=Макс Антипин'
+        ];
     }
 
     #[DataProvider('dataProviderConstruct')]
@@ -139,9 +140,9 @@ final class URLTest extends TestCase
 
     public function testParse(): void
     {
-        $url = URL::parse('https://example.com/');
+        $url = URL::parse('https://sexample.me/');
         $this->assertSame('https', $url->scheme);
-        $this->assertSame('example.com', $url->host);
+        $this->assertSame('sexample.me', $url->host);
         $this->assertSame('', $url->port);
         $this->assertSame('/', $url->path);
         $this->assertSame('', $url->query);
