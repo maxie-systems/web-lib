@@ -9,6 +9,7 @@ use MaxieSystems\URL;
 use MaxieSystems\URLReadOnly;
 use MaxieSystems\URLType;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
@@ -84,29 +85,41 @@ final class URLTest extends TestCase
         );
     }
 
-    public function testConstruct(): void
+    #[DataProvider('dataProviderConstruct')]
+    public function testConstruct(
+        mixed $srcUrl, string $scheme, string $user, string $host, string $path, string $query
+    ): void {
+        $url = new URL($srcUrl);
+        $this->assertSame($scheme, $url->scheme);
+        $this->assertSame($user, $url->user);
+        $this->assertSame($host, $url->host);
+        $this->assertSame($path, $url->path);
+        $this->assertSame($query, $url->query);
+    }
+
+    public static function dataProviderConstruct(): \Generator
     {
-        $url = new URL('https://example.com/');
-        $this->assertSame('https', $url->scheme);
-        $this->assertSame('example.com', $url->host);
-        $this->assertSame('/', $url->path);
-        $this->assertSame('', $url->query);
-        $url = new URL(parse_url('mailto:ceo@maxiesystems.com'));
-        $this->assertSame('mailto', $url->scheme);
-        $this->assertSame('', $url->user);
-        $this->assertSame('', $url->host);
-        $this->assertSame('ceo@maxiesystems.com', $url->path);
-        $u = 'https://service.ru/catalog/komplektuyushchie_dlya_remonta/zapchasti_dlya_apple/?per_page=100&PAGEN_1=2';
-        $url = new URL(URL::Parse($u));
-        $this->assertSame('https', $url->scheme);
-        $this->assertSame('service.ru', $url->host);
-        $this->assertSame('/catalog/komplektuyushchie_dlya_remonta/zapchasti_dlya_apple/', $url->path);
-        $this->assertSame('per_page=100&PAGEN_1=2', $url->query);
+        yield 'URL from string' => [
+            'https://example.us/', 'https', '', 'example.us', '/', '',
+        ];
+        yield 'Email from array' => [
+            parse_url('mailto:ceo@maxiesystems.com'), 'mailto', '', '', 'ceo@maxiesystems.com', '',
+        ];
+        yield 'URL from object' => [
+            URL::Parse(
+                'https://service.ru/catalog/komplektuyushchie_dlya_remonta/zapchasti_dlya_apple/?per_page=100&PAGEN_1=2'
+            ),
+            'https',
+            '',
+            'service.ru',
+            '/catalog/komplektuyushchie_dlya_remonta/zapchasti_dlya_apple/',
+            'per_page=100&PAGEN_1=2',
+        ];
     }
 
     public function testClone(): void
     {
-        $url = new URL('https://example.com/');
+        $url = new URL('https://example-domain.shop/');
         $url->query = new URL\Query(['test' => '1']);
         $new_url = clone $url;
         $new_url->query->test = '0';
