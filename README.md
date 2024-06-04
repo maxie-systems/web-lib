@@ -59,3 +59,22 @@ Fix your code:
 ```
 composer fix-psr12 <src/FileName.php>
 ```
+
+## VSCode with Xdebug 3 inside Docker
+
+Add config into `.vscode/launch.json`:
+
+```json
+//  ...
+//  "configurations": [
+        {
+            "name": "Xdebug inside Docker",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/usr/src/app/": "${workspaceRoot}"
+            }
+        },
+//  ...
+```

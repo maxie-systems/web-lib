@@ -8,7 +8,7 @@ FROM composer:${COMPOSER_VERSION} AS composer_image
 FROM php:${PHP_VERSION}-cli-alpine
 LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
       org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.0.3"
+      org.opencontainers.image.version="0.0.5"
 RUN set -eux; \
     apk update \
  && apk upgrade \
@@ -17,7 +17,10 @@ RUN set -eux; \
  && pecl install xdebug \
  && docker-php-ext-enable xdebug \
  && pecl clear-cache \
- && apk del .build-dependencies \
- && mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+ && apk del .build-dependencies
+RUN --mount=type=bind,source=.docker,target=/tmp/docker \
+    set -eux \
+ && mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
+ && cat /tmp/docker/xdebug.ini >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/

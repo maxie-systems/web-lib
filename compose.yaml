@@ -4,15 +4,9 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile
-    configs:
-      - source: xdebug
-        target: /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     container_name: ${COMPOSE_PROJECT_NAME}-php
     image: 'maxie-systems/web-lib-dev:latest'
     restart: unless-stopped
     tty: true
     volumes:
       - .:/usr/src/app/
-configs:
-  xdebug:
-    file: .docker/xdebug.ini
