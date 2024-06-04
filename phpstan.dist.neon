@@ -4,6 +4,7 @@ parameters:
     paths:
         - .
     excludePaths:
+        - var
         - vendor
     bootstrapFiles:
         - vendor/autoload.php
