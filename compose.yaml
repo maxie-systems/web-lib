@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: .docker/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME}-php
+    environment:
+      - XDEBUG_MODE
     image: 'maxie-systems/web-lib-dev:latest'
     restart: unless-stopped
     tty: true
