@@ -54,7 +54,7 @@ final class URLTest extends TestCase
             'https://example.com/#nav',
         ];
         yield 'URL object' => [
-            [
+            (object)[
                 'scheme' => 'https',
                 'host' => '92.16.33.40',
                 'port' => '443',
