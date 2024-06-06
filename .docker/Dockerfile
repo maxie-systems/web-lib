@@ -1,14 +1,11 @@
 #syntax=docker/dockerfile:1.6
 
 ARG PHP_VERSION=8.2
-ARG COMPOSER_VERSION=2.6
+ARG COMPOSER_VERSION=2.7
 
 FROM composer:${COMPOSER_VERSION} AS composer_image
 
 FROM php:${PHP_VERSION}-cli-alpine
-LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
-      org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.0.6"
 RUN set -eux; \
     apk update \
  && apk upgrade \
@@ -26,3 +23,6 @@ RUN --mount=type=bind,source=.docker,target=/tmp/docker \
  && cat /tmp/docker/xdebug.ini >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/
+LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
+      org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
+      org.opencontainers.image.version="0.0.7"
