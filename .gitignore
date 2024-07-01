@@ -1,7 +1,9 @@
+.env
 .phpunit.result.cache
 /.vscode/
 /var/
 /vendor/
 composer.lock
+phpcs.xml
 phpstan.neon
 phpunit.xml

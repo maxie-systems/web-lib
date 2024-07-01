@@ -1,0 +1,5 @@
+.*
+!.docker/*.ini
+!.docker/*.sh
+var/
+vendor/

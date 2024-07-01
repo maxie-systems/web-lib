@@ -1,6 +1,6 @@
-#syntax=docker/dockerfile:1.6
+#syntax=docker/dockerfile:1.7-labs
 
-ARG PHP_VERSION=8.2
+ARG PHP_VERSION=8.3
 ARG COMPOSER_VERSION=2.7
 
 FROM composer:${COMPOSER_VERSION} AS composer_image
@@ -25,4 +25,4 @@ COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/
 LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
       org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.0.7"
+      org.opencontainers.image.version="0.1.0"

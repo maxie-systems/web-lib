@@ -2,6 +2,8 @@ name: 'web-lib-dev'
 services:
   php:
     build:
+      args:
+        - PHP_VERSION
       context: .
       dockerfile: .docker/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME}-php
