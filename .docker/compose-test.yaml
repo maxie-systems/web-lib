@@ -3,13 +3,10 @@ name: 'web-lib-test'
 x-php-service: &php-service
   build: &php-build
     additional_contexts:
-      docker-files: ../.docker/
+      source: ../.
     args:
       - PHP_VERSION
-    context: ../.
-    dockerfile: .docker/Dockerfile
     target: php_test
-  command: ["run-tests", "no-coverage"]
 
 services:
   php-83:

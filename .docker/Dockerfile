@@ -15,7 +15,7 @@ RUN set -eux; \
  && docker-php-ext-enable xdebug \
  && pecl clear-cache \
  && apk del .build-dependencies
-RUN --mount=type=bind,from=docker-files,source=.,target=/tmp/docker-files \
+RUN --mount=type=bind,source=.,target=/tmp/docker-files \
     set -eux \
  && mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
  && sed -i "s|\(max_execution_time =\).*|\1 60|" "$PHP_INI_DIR/php.ini" \
@@ -25,15 +25,20 @@ COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/
 LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
       org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.1.0"
+      org.opencontainers.image.version="0.2.0"
 
 FROM php_dev AS php_test
-COPY --link --chmod=750 --from=docker-files run-tests.sh /usr/local/bin/run-tests
-COPY --link composer.json ./
+COPY --link --from=source composer.json .
 RUN set -eu; \
     composer install --no-autoloader --no-scripts --no-progress --audit
-ENV XDEBUG_MODE=off
-COPY --exclude=composer.json . .
+COPY --from=source --exclude=composer.json . .
 RUN set -eu; \
     composer dump-autoload --classmap-authoritative --strict-psr; \
     composer validate --strict
+COPY --link --chmod=750 run-tests.sh /usr/local/bin/run-tests
+ENV XDEBUG_MODE=off
+CMD ["run-tests", "no-coverage"]
+
+FROM composer_image
+RUN printf 'Attribute build.target is unspecified!' && exit 1
+# A little trick to make users explicitly define target stage.

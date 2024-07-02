@@ -2,12 +2,9 @@ name: 'web-lib'
 services:
   php-dev:
     build:
-      additional_contexts:
-        docker-files: .docker/
       args:
         - PHP_VERSION
-      context: .
-      dockerfile: .docker/Dockerfile
+      context: .docker/
       target: php_dev
     container_name: ${COMPOSE_PROJECT_NAME}-php-dev
     environment:
