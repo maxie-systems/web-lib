@@ -1,5 +1,6 @@
 .*
-!.docker/*.ini
-!.docker/*.sh
+*.md
+compose.yaml
+composer.lock
 var/
 vendor/

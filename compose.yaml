@@ -1,15 +1,18 @@
-name: 'web-lib-dev'
+name: 'web-lib'
 services:
-  php:
+  php-dev:
     build:
+      additional_contexts:
+        docker-files: .docker/
       args:
         - PHP_VERSION
       context: .
       dockerfile: .docker/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME}-php
+      target: php_dev
+    container_name: ${COMPOSE_PROJECT_NAME}-php-dev
     environment:
       - XDEBUG_MODE
-    image: 'maxie-systems/web-lib-dev:latest'
+    image: 'maxie-systems/${COMPOSE_PROJECT_NAME}-php:dev'
     restart: unless-stopped
     tty: true
     volumes:

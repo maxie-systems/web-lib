@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="custom-ruleset">
+  <description>Created to check this project.</description>
+  <file>.</file>
+  <exclude-pattern>var/</exclude-pattern>
+  <exclude-pattern>vendor/</exclude-pattern>
+  <rule ref="PSR12"/>
+  <rule ref="Squiz.PHP.Eval"/>
+  <rule ref="Generic.PHP.ForbiddenFunctions"/>
+  <rule ref="Squiz.PHP.GlobalKeyword"/>
+  <rule ref="Squiz.PHP.LowercasePHPFunctions"/>
+</ruleset>

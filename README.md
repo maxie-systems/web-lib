@@ -2,16 +2,32 @@
 
 # Development
 
-## Docker Image
-The image is used to run tests.
+## Docker Images
+The images are used to run tests.
+
+Two types: development & testing. Development environment uses Composer to run tests. Testing environment uses shell-script to run tests.
 
 The simpliest method to build image and run container:
 ```Shell
+# Run developer container:
 docker compose up -d
+
+# Run all test containers:
+docker compose --progress plain -f .docker/compose-test.yaml up
+
+# Run single test container with certain version:
+docker compose --progress plain -f .docker/compose-test.yaml run --no-deps --rm php-83
+
+# (Rarely) run certain kind of tests in a test container:
+docker compose --progress plain -f .docker/compose-test.yaml run --no-deps --rm php-83 php ./vendor/bin/phpunit
 ```
 
 Build an image:
 ```Shell
+docker compose build
+# or
+docker compose -f .docker/compose-test.yaml build
+# or
 docker build -f .docker/Dockerfile -t maxie-systems/web-lib-dev:latest .
 ```
 

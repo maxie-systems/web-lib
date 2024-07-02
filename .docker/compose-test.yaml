@@ -1,0 +1,32 @@
+name: 'web-lib-test'
+
+x-php-service: &php-service
+  build: &php-build
+    additional_contexts:
+      docker-files: ../.docker/
+    args:
+      - PHP_VERSION
+    context: ../.
+    dockerfile: .docker/Dockerfile
+    target: php_test
+  command: ["run-tests", "no-coverage"]
+
+services:
+  php-82:
+    <<: *php-service
+    build:
+      <<: *php-build
+      args:
+        PHP_VERSION: 8.2
+  php-83:
+    <<: *php-service
+    build:
+      <<: *php-build
+      args:
+        PHP_VERSION: 8.3
+    command: ["run-tests", "coverage"]
+    depends_on:
+      php-82:
+        condition: service_completed_successfully
+    environment:
+      XDEBUG_MODE: coverage
