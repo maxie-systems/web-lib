@@ -27,6 +27,16 @@ services:
     depends_on:
       php-83:
         condition: service_completed_successfully
+  export-package:
+    build:
+      args:
+        PHP_VERSION: 8.3
+      target: php_dev
+    command: ["php", ".docker/check-export.php"]
+    environment:
+      XDEBUG_MODE: off
+    volumes:
+      - ../.:/usr/src/app/:ro
 # For the future usage:
 #  php-84:
 #    <<: *php-service

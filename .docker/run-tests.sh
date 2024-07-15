@@ -1,8 +1,10 @@
 #!/bin/sh
-set -ux
+set -u
 
+echo 'Run phpcs'
 php ./vendor/bin/phpcs
 
+echo 'Run phpunit'
 if [ "$1" = 'no-coverage' ]; then
   php ./vendor/bin/phpunit --no-coverage
 elif [ "$1" = 'coverage' ]; then
@@ -12,4 +14,5 @@ else
   exit 1
 fi
 
+echo 'Run phpstan'
 php ./vendor/bin/phpstan analyse
