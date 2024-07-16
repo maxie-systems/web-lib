@@ -10,14 +10,11 @@ x-php-service: &php-service
 
 services:
   php-83:
-    <<: *php-service
-    build:
-      <<: *php-build
-      args:
-        PHP_VERSION: 8.3
-    command: ["run-tests", "coverage"]
+    command: ["run-tests", "phpunit"]
     environment:
       XDEBUG_MODE: coverage
+    extends:
+      service: php-lint-83
   php-82:
     <<: *php-service
     build:
@@ -27,6 +24,13 @@ services:
     depends_on:
       php-83:
         condition: service_completed_successfully
+  php-lint-83:
+    <<: *php-service
+    build:
+      <<: *php-build
+      args:
+        PHP_VERSION: 8.3
+    command: ["run-tests", "phpcs"]
   export-package:
     build:
       args:
@@ -37,13 +41,3 @@ services:
       XDEBUG_MODE: off
     volumes:
       - ../.:/usr/src/app/:ro
-# For the future usage:
-#  php-84:
-#    <<: *php-service
-#    build:
-#      <<: *php-build
-#      args:
-#        PHP_VERSION: 8.4
-#    depends_on:
-#      php-83:
-#        condition: service_completed_successfully

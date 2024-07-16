@@ -36,7 +36,7 @@ RUN set -eu; \
     composer validate --strict
 COPY --link --chmod=750 run-tests.sh /usr/local/bin/run-tests
 ENV XDEBUG_MODE=off
-CMD ["run-tests", "no-coverage"]
+CMD ["run-tests", "phpunit-no-coverage"]
 
 FROM composer_image
 RUN printf 'Attribute build.target is unspecified!' && exit 1
