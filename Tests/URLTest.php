@@ -88,7 +88,12 @@ final class URLTest extends TestCase
 
     #[DataProvider('dataProviderConstruct')]
     public function testConstruct(
-        mixed $srcUrl, string $scheme, string $user, string $host, string $path, string $query
+        mixed $srcUrl,
+        string $scheme,
+        string $user,
+        string $host,
+        string $path,
+        string $query
     ): void {
         $url = new URL($srcUrl);
         $this->assertSame($scheme, $url->scheme);
