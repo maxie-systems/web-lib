@@ -10,7 +10,7 @@ x-php-service: &php-service
 
 services:
   php-83:
-    command: ["run-tests", "phpunit"]
+    command: ["phpunit"]
     environment:
       XDEBUG_MODE: coverage
     extends:
@@ -30,4 +30,4 @@ services:
       <<: *php-build
       args:
         PHP_VERSION: 8.3
-    command: ["run-tests", "phpcs", "phpstan"]
+    command: ["phpcs", "phpstan"]
