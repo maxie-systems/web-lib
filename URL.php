@@ -403,6 +403,7 @@ class URL implements URLInterface
             $v = $this->data[$k];
             return 'mixed' === self::$components[$k]['type'] ? (string)$v : $v;
         }
+        return null;
     }
 
     final public function next(): void

@@ -65,12 +65,10 @@ final class PathTest extends TestCase
                 '' => ['/'],
                 '/my-project' => [
                     '/',
+                    '/my-project/',
                 ],
                 '/my-project/' => [
 //                    '/my-project' => [false],// или здесь true?
-                ],
-                '/my-project' => [
-                    '/my-project/',
                 ],
                 '/my-project/tests' => [
                     '/my-project',

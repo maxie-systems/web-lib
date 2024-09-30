@@ -307,9 +307,7 @@ final class URLTest extends TestCase
     public function testArrayAccess(): void
     {
         $url_str = 'https://example.com:8080/pictures/search.php?max=5';
-        $url = new URL($url_str, function (string $name, $value, array|\ArrayAccess $src_url) {
-            return $value;
-        });
+        $url = new URL($url_str);
         $this->assertSame('example.com', $url['host']);
         $this->assertNotTrue(isset($url['fake_property']));
         $this->assertTrue(isset($url['port']));

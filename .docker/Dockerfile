@@ -9,12 +9,13 @@ FROM php:${PHP_VERSION}-cli-alpine AS php_dev
 RUN set -eux; \
     apk update \
  && apk upgrade \
- && apk add --no-cache git linux-headers \
+ && apk add --no-cache linux-headers \
  && apk add --update --no-cache --virtual .build-dependencies $PHPIZE_DEPS \
  && pecl install xdebug \
  && docker-php-ext-enable xdebug \
  && pecl clear-cache \
  && apk del .build-dependencies
+ENV COMPOSER_ROOT_VERSION=dev-main
 RUN --mount=type=bind,source=.,target=/tmp/docker-files \
     set -eux \
  && mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
@@ -24,7 +25,7 @@ COPY --from=composer_image --link /usr/bin/composer /usr/local/bin/composer
 WORKDIR /usr/src/app/
 LABEL org.opencontainers.image.description="Maxie Systems Web Library development environment" \
       org.opencontainers.image.vendor="Max Antipin <max.v.antpin@gmail.com>" \
-      org.opencontainers.image.version="0.3.0"
+      org.opencontainers.image.version="0.4.0"
 
 FROM php_dev AS php_test
 COPY --link --from=source composer.json .

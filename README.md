@@ -94,3 +94,9 @@ Add config into `.vscode/launch.json`:
         },
 //  ...
 ```
+
+## Check export
+
+```shell
+php .docker/check-export.php
+```

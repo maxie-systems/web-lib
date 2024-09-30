@@ -30,14 +30,4 @@ services:
       <<: *php-build
       args:
         PHP_VERSION: 8.3
-    command: ["run-tests", "phpcs"]
-  export-package:
-    build:
-      args:
-        PHP_VERSION: 8.3
-      target: php_dev
-    command: ["php", ".docker/check-export.php"]
-    environment:
-      XDEBUG_MODE: off
-    volumes:
-      - ../.:/usr/src/app/:ro
+    command: ["run-tests", "phpcs", "phpstan"]
